@@ -9,5 +9,7 @@ with st.form("compliance_form"):
 
     if picture:
         st.image(picture)
+    else:
+        st.file_uploader("Upload a picture", type=["png", "jpg", "jpeg"])
 
     submitted = st.form_submit_button("Submit")
