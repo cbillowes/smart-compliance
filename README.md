@@ -23,7 +23,14 @@ Extract text from id document (OCR)
 https://huggingface.co/models?pipeline_tag=image-to-text
 
 ## API:
-Detect and compare photo of person with their ID card photo and verify the personal information provided that is read from the ID document.
+Get the photo, detect and compare photo of person with their ID card photo and verify the personal information provided that is read from the ID document.
 
 ## UI component:
 Output the result to the UI to say the “fraud probability score / percentage”
+
+## Deployment considerations:
+
+ML Flow:
+- Docker for API
+- GCP for API
+- Streamlit cloud for UI
