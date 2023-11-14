@@ -24,6 +24,10 @@ streamlit:
 	-@streamlit run web/app.py
 
 
+uvicorn:
+	-@uvicorn api.fast:app --reload
+
+
 # ----------------------------------
 #    LOCAL INSTALL COMMANDS
 # ----------------------------------
