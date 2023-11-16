@@ -1,5 +1,6 @@
 from deepface import DeepFace
 import cv2
+import pandas as pd
 import matplotlib.pyplot as plt
 
 
@@ -48,13 +49,22 @@ def extract_faces(image, scale_factor=1):
     return faces
 
 
-def verify_faces(selfie, document):
-    faces = detect_faces(selfie)
+def verify_faces(base_image, faces, model_name="VGG-Face", distance_metric="euclidean_l2", detector_backend="opencv"):
+    results = []
 
-    for i, face in enumerate(faces):
-        (x, y, w, h) = face
-        selfie = selfie[y:y + h, x:x + w]
+    for face in faces:
+        result = DeepFace.verify(img1_path=base_image,
+                                 img2_path=face,
+                                 model_name=model_name,
+                                 distance_metric=distance_metric,
+                                 detector_backend=detector_backend)
+        if (result['verified'] == True):
+            plt.imshow(base_image)
+            plt.show()
+            plt.imshow(face)
+            plt.show()
+            return result
+        else:
+            results.append(result)
 
-    # preview_faces(selfie)
-    # preview_faces(document)
-    # return DeepFace.verify(selfie, document, model_name="Facenet", distance_metric="euclidean_l2", detector_backend="opencv")
+    return (pd.DataFrame(results)[['verified']] == True).to_dict('list')

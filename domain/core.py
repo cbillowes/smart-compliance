@@ -1,8 +1,24 @@
 import cv2
+import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
 from domain.preparator import prepare
 from domain.detector import extract_faces, with_rectangles, verify_faces
+
+models = [
+    "VGG-Face",
+    "Facenet",
+    "OpenFace",
+    "DeepFace",
+    "ArcFace",
+]
+
+distance_metrics = [
+    "cosine",
+    "euclidean",
+    "euclidean_l2",
+    "cosine",
+]
 
 
 def plot_images(title, images):
@@ -34,26 +50,24 @@ class SmartCompliance:
         scale_factor = 15
         self.prepare_selfies(selfie_image, scale_factor=scale_factor)
         self.prepare_documents(document_image, scale_factor=scale_factor)
-        self.selfie_documents = [self.base_image, *self.selfie_document_images]
-        self.legal_documents = [self.base_image, *self.document_faces]
 
     def prepare_selfies(self, selfie_image, scale_factor=1):
-        original_selfie, selfie = prepare(selfie_image)
-        self.original_selfie_image = original_selfie
+        original, selfie = prepare(selfie_image)
+        self.original_selfie_image = original
         self.selfie_image = selfie
         self.selfie_faces = extract_faces(
             self.selfie_image, scale_factor=scale_factor)
         self.base_image = max(
             self.selfie_faces, key=lambda x: x.shape[0] * x.shape[1])
-        self.selfie_document_images = [
+        self.selfie_document_faces = [
             face for face in self.selfie_faces if np.array_equal(face, self.base_image) == False]
 
     def prepare_documents(self, document_image, scale_factor=1):
-        original_document, document = prepare(document_image)
-        self.original_document_image = original_document
-        self.document_image = document
-        self.document_faces = extract_faces(
-            self.document_image, scale_factor=scale_factor)
+        original, legal_document = prepare(document_image)
+        self.original_legal_document_image = original
+        self.legal_document_image = legal_document
+        self.legal_document_faces = extract_faces(
+            self.legal_document_image, scale_factor=scale_factor)
 
     def preview(self):
         plot_faces("Selfie",
@@ -61,11 +75,33 @@ class SmartCompliance:
                    self.selfie_image,
                    self.selfie_faces)
         plot_faces("Document",
-                   self.original_document_image,
-                   self.document_image,
-                   self.document_faces)
-        plot_images("Selfie", self.selfie_documents)
-        plot_images("Document", self.legal_documents)
+                   self.original_legal_document_image,
+                   self.legal_document_image,
+                   self.legal_document_faces)
+        plot_images("Selfie", self.selfie_document_faces)
+        plot_images("Document", self.legal_document_faces)
+
+    def verify_selfie_faces(self):
+        for model in models:
+            for distance_metric in distance_metrics:
+                selfie_results = verify_faces(self.base_image,
+                                              self.selfie_document_faces,
+                                              model_name=model,
+                                              distance_metric=distance_metric)
+                if (selfie_results['verified'] == True):
+                    return selfie_results
+
+    def verify_legal_document_faces(self):
+        for model in models:
+            for distance_metric in distance_metrics:
+                legal_results = verify_faces(self.base_image,
+                                             self.legal_document_faces,
+                                             model_name=model,
+                                             distance_metric=distance_metric)
+                if (legal_results['verified'] == True):
+                    return legal_results
 
     def verify(self):
-        return verify_faces(self.selfie_image, self.document_image)
+        selfie_results = self.verify_selfie_faces()
+        legal_results = self.verify_legal_document_faces()
+        return (selfie_results, legal_results)
