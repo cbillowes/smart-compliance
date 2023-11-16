@@ -11,8 +11,6 @@ def prepare(image_path):
     original_image = cv2.cvtColor(cv2.imread(image_path), cv2.COLOR_BGR2RGB)
     image = rotate(original_image, angle=45,
                    loop_while=lambda x: detected_faces(x) == 0)
-    plt.imshow(image)
-    plt.show()
     if (detected_faces(image) == 0):
         raise Exception(f"No faces detected in {image_path}")
 
