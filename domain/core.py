@@ -1,5 +1,3 @@
-import cv2
-import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
 from domain.preparator import prepare
@@ -48,8 +46,11 @@ class SmartCompliance:
 
     def __init__(self, selfie_image, document_image) -> None:
         scale_factor = 15
-        self.prepare_selfies(selfie_image, scale_factor=scale_factor)
-        self.prepare_documents(document_image, scale_factor=scale_factor)
+        try:
+            self.prepare_selfies(selfie_image, scale_factor=scale_factor)
+            self.prepare_documents(document_image, scale_factor=scale_factor)
+        except Exception as e:
+            print(e)
 
     def prepare_selfies(self, selfie_image, scale_factor=1):
         original, selfie = prepare(selfie_image)

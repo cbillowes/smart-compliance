@@ -12,13 +12,17 @@ def detect_faces(image,
     """
     https://github.com/kipr/opencv/tree/master/data/haarcascades
     """
-    file = f"{cv2.data.haarcascades}{cascade_path}"
-    face_cascade = cv2.CascadeClassifier(file)
-    faces = face_cascade.detectMultiScale(image,
-                                          scaleFactor=scale_factor,
-                                          minNeighbors=min_neighbors,
-                                          minSize=min_size)
-    return faces
+    try:
+        file = f"{cv2.data.haarcascades}{cascade_path}"
+        face_cascade = cv2.CascadeClassifier(file)
+        faces = face_cascade.detectMultiScale(image,
+                                            scaleFactor=scale_factor,
+                                            minNeighbors=min_neighbors,
+                                            minSize=min_size)
+        return faces
+    except Exception as e:
+        print(e)
+        return []
 
 
 def with_rectangles(image,
@@ -53,18 +57,22 @@ def verify_faces(base_image, faces, model_name="VGG-Face", distance_metric="eucl
     results = []
 
     for face in faces:
-        result = DeepFace.verify(img1_path=base_image,
-                                 img2_path=face,
-                                 model_name=model_name,
-                                 distance_metric=distance_metric,
-                                 detector_backend=detector_backend)
-        if (result['verified'] == True):
-            plt.imshow(base_image)
-            plt.show()
-            plt.imshow(face)
-            plt.show()
-            return result
-        else:
-            results.append(result)
+        try:
+            result = DeepFace.verify(img1_path=base_image,
+                                    img2_path=face,
+                                    model_name=model_name,
+                                    distance_metric=distance_metric,
+                                    detector_backend=detector_backend)
+            if (result['verified'] == True):
+                plt.imshow(base_image)
+                plt.show()
+                plt.imshow(face)
+                plt.show()
+                return result
+            else:
+                results.append(result)
+        except Exception as e:
+            print(e)
+            results.append({'verified': False, 'reason': 'No face detected'})
 
     return (pd.DataFrame(results)[['verified']] == True).to_dict('list')
