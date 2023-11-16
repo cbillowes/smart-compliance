@@ -43,13 +43,12 @@ def with_rectangles(image,
     return image
 
 
-def extract_faces(image, scale_factor=1):
+def extract_faces(image, scale_factor=1.1):
+    padding = 50 # px
     faces = []
-    for i, face in enumerate(detect_faces(image)):
+    for face in detect_faces(image, scale_factor=scale_factor):
         (x, y, w, h) = face
-        rect = image[y:y + h, x:x + w]
-        resized = cv2.resize(rect, (h * scale_factor, w * scale_factor))
-        faces.append(resized)
+        faces.append(image[y - padding : y + h + padding, x - padding : x + w + padding])
     return faces
 
 
@@ -62,7 +61,8 @@ def verify_faces(base_image, faces, model_name="VGG-Face", distance_metric="eucl
                                     img2_path=face,
                                     model_name=model_name,
                                     distance_metric=distance_metric,
-                                    detector_backend=detector_backend)
+                                    detector_backend=detector_backend,
+                                    enforce_detection=False)
             if (result['verified'] == True):
                 plt.imshow(base_image)
                 plt.show()

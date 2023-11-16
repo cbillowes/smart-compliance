@@ -5,7 +5,7 @@ from domain.detector import extract_faces, with_rectangles, verify_faces
 from domain.extractor import extract_characters
 
 models = [
-    "VGG-Face",
+    # "VGG-Face",
     "Facenet",
     "OpenFace",
     "DeepFace",
@@ -21,15 +21,21 @@ distance_metrics = [
 
 
 def plot_images(title, images):
-    fig, axs = plt.subplots(1, len(images), figsize=(15, 5))
+    # Create a figure with the given title.
+    cols = len(images) if len(images) > 0 else 1
+    fig, axs = plt.subplots(1, cols, figsize=(15, 5))
     fig.suptitle(title)
+
+    # Plot each image on its own subplot.
     for i, image in enumerate(images):
         axs[i].imshow(image)
+
+    # Show the figure.
     fig.show()
 
 
 def plot_faces(title, original_image, processed_image, faces):
-    cols = len(faces)
+    cols = len(faces) if len(faces) > 0 else 1
     fig, axs = plt.subplots(1, cols + 2, figsize=(15, 5))
     fig.suptitle(title)
     axs[0].imshow(original_image)
@@ -45,15 +51,15 @@ class SmartCompliance:
     Two images are required: a selfie and a photo of the ID document or passport.
     """
 
-    def __init__(self, selfie_image, document_image, scale_factor=15) -> None:
+    def __init__(self, selfie_image, document_image) -> None:
         try:
-            self.prepare_selfies(selfie_image, scale_factor=scale_factor)
-            self.prepare_documents(document_image, scale_factor=scale_factor)
+            self.prepare_selfies(selfie_image)
+            self.prepare_documents(document_image)
         except Exception as e:
             print(e)
 
-    def prepare_selfies(self, selfie_image, scale_factor=1):
-        original, selfie = prepare(selfie_image)
+    def prepare_selfies(self, selfie_image, zoom_factor=1.1, scale_factor=1.1):
+        original, selfie = prepare(selfie_image, zoom_factor=zoom_factor)
         self.original_selfie_image = original
         self.selfie_image = selfie
         self.selfie_faces = extract_faces(
@@ -63,8 +69,9 @@ class SmartCompliance:
         self.selfie_document_faces = [
             face for face in self.selfie_faces if np.array_equal(face, self.base_image) == False]
 
-    def prepare_documents(self, document_image, scale_factor=1):
-        original, legal_document = prepare(document_image)
+    def prepare_documents(self, document_image, zoom_factor=1.1, scale_factor=1.1):
+        original, legal_document = prepare(
+            document_image, zoom_factor=zoom_factor)
         self.original_legal_document_image = original
         self.legal_document_image = legal_document
         self.legal_document_faces = extract_faces(
@@ -80,7 +87,7 @@ class SmartCompliance:
                    self.legal_document_image,
                    self.legal_document_faces)
         plot_images("Selfie", self.selfie_document_faces)
-        plot_images("Document", self.legal_document_faces)
+        # plot_images("Document", self.legal_document_faces)
 
     def verify_selfie_faces(self):
         for model in models:
