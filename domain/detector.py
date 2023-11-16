@@ -20,7 +20,7 @@ def detect_faces(image,
     return faces
 
 
-def draw_rectangles(image,
+def with_rectangles(image,
                     cascade_path="haarcascade_frontalface_default.xml",
                     scale_factor=1.1,
                     min_neighbors=5,
@@ -35,23 +35,17 @@ def draw_rectangles(image,
         (x, y, w, h) = face
         cv2.rectangle(image, (x, y), (x + w, y + h), (255, 0, 0), 5)
 
-    plt.imshow(image)
-    plt.show()
+    return image
 
 
-def preview_faces(image):
-    faces = detect_faces(image)
-    for i, face in enumerate(faces):
+def extract_faces(image, scale_factor=1):
+    faces = []
+    for i, face in enumerate(detect_faces(image)):
         (x, y, w, h) = face
-        img = image
-
-        if (w < 100 and h < 100):
-            img = cv2.resize(image[y:y + h, x:x + w], (5000, 5000))
-        else:
-            img = image[y:y + h, x:x + w]
-
-        plt.imshow(img)
-        plt.show()
+        rect = image[y:y + h, x:x + w]
+        resized = cv2.resize(rect, (h * scale_factor, w * scale_factor))
+        faces.append(resized)
+    return faces
 
 
 def verify_faces(selfie, document):
