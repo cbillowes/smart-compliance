@@ -2,6 +2,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 from domain.preparator import prepare
 from domain.detector import extract_faces, with_rectangles, verify_faces
+from domain.extractor import extract_characters
 
 models = [
     "VGG-Face",
@@ -44,8 +45,7 @@ class SmartCompliance:
     Two images are required: a selfie and a photo of the ID document or passport.
     """
 
-    def __init__(self, selfie_image, document_image) -> None:
-        scale_factor = 15
+    def __init__(self, selfie_image, document_image, scale_factor=15) -> None:
         try:
             self.prepare_selfies(selfie_image, scale_factor=scale_factor)
             self.prepare_documents(document_image, scale_factor=scale_factor)
@@ -106,3 +106,16 @@ class SmartCompliance:
         selfie_results = self.verify_selfie_faces()
         legal_results = self.verify_legal_document_faces()
         return (selfie_results, legal_results)
+
+    def extract_text(self):
+        return extract_characters(self.legal_document_image)
+
+    def verify_text(self, first_name, last_name, date_of_birth, identification_number):
+        # selfie_text = extract_characters(self.base_image)
+        # legal_text = extract_characters(self.legal_document_image)
+        # # if (selfie_text == legal_text):
+        # #     legal_text.contains(first_name)
+        # #     legal_text.contains(last_name)
+        # #     legal_text.contains(date_of_birth)
+        # #     legal_text.contains(identification_number)
+        extract_characters(self.legal_document_image)
