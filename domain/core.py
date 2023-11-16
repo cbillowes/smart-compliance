@@ -6,31 +6,25 @@ from domain.extractor import extract_characters
 
 models = [
     # "VGG-Face",
-    "Facenet",
-    "OpenFace",
-    "DeepFace",
+    # "Facenet",
+    # "OpenFace",
+    # "DeepFace",
     "ArcFace",
 ]
 
 distance_metrics = [
-    "cosine",
-    "euclidean",
-    "euclidean_l2",
-    "cosine",
+    # "cosine",
+    # "euclidean",
+    "euclidean_l2"
 ]
 
 
 def plot_images(title, images):
-    # Create a figure with the given title.
     cols = len(images) if len(images) > 0 else 1
     fig, axs = plt.subplots(1, cols, figsize=(15, 5))
     fig.suptitle(title)
-
-    # Plot each image on its own subplot.
     for i, image in enumerate(images):
         axs[i].imshow(image)
-
-    # Show the figure.
     fig.show()
 
 
@@ -65,7 +59,7 @@ class SmartCompliance:
         self.selfie_faces = extract_faces(
             self.selfie_image, scale_factor=scale_factor)
         self.base_image = max(
-            self.selfie_faces, key=lambda x: x.shape[0] * x.shape[1])
+            self.selfie_faces, key=lambda face: face.shape[0] * face.shape[1])
         self.selfie_document_faces = [
             face for face in self.selfie_faces if np.array_equal(face, self.base_image) == False]
 
@@ -82,12 +76,15 @@ class SmartCompliance:
                    self.original_selfie_image,
                    self.selfie_image,
                    self.selfie_faces)
-        plot_faces("Document",
+        plot_faces("Legal document",
                    self.original_legal_document_image,
                    self.legal_document_image,
                    self.legal_document_faces)
-        plot_images("Selfie", self.selfie_document_faces)
-        # plot_images("Document", self.legal_document_faces)
+        plot_images("Selfie faces to be compared with base image",
+                    [self.base_image, *self.selfie_document_faces])
+        plot_images("Legal document faces to be compared with base image", [
+                    self.base_image,
+                    *self.legal_document_faces])
 
     def verify_selfie_faces(self):
         for model in models:

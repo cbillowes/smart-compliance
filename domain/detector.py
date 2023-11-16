@@ -56,6 +56,11 @@ def verify_faces(base_image, faces, model_name="VGG-Face", distance_metric="eucl
     results = []
 
     for face in faces:
+        print(model_name, distance_metric)
+        # fig, axs = plt.subplots(1, 2, figsize=(15, 5))
+        # axs[0] = plt.imshow(base_image)
+        # axs[1] = plt.imshow(face)
+        # plt.show()
         try:
             result = DeepFace.verify(img1_path=base_image,
                                     img2_path=face,
