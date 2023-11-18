@@ -8,3 +8,4 @@ python-multipart
 openface
 pytesseract
 Pillow
+domain git+https://github.com/cbillowes/smart-compliance
