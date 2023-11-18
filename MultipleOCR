@@ -1,0 +1,62 @@
+import cv2
+import pytesseract
+import easyocr
+import keras_ocr
+import subprocess
+import tempfile
+import pdfplumber
+from calamari_ocr.ocr import Predictor, create_dataset_from_path
+from calamari_ocr.ocr.backends.torch_backend.torchvision.transforms import default_image_transforms
+
+def run_tesseract(image):
+    return pytesseract.image_to_string(image)
+
+def run_easyocr(image):
+    reader = easyocr.Reader(['en'])
+    result = reader.readtext(image)
+    return ' '.join([res[1] for res in result])
+
+def run_keras_ocr(image):
+    pipeline = keras_ocr.pipeline.Pipeline()
+    prediction_groups = pipeline.recognize([image])
+    return ' '.join([word for line in prediction_groups[0] for word, box in line])
+
+def run_ocrmypdf(image_path, output_pdf_path):
+    subprocess.run(["ocrmypdf", image_path, output_pdf_path], check=True)
+    text = ""
+    with pdfplumber.open(output_pdf_path) as pdf:
+        for page in pdf.pages:
+            text += page.extract_text() + "\n"
+    return text
+
+def run_calamari_ocr(image):
+    predictor = Predictor(checkpoint='path_to_calamari_checkpoint', batch_size=1)
+    dataset = create_dataset_from_path(image_path=image, batch_size=1, images_loaded_directly=True)
+    dataset = default_image_transforms(False)(dataset)
+    text = ""
+    for sample in dataset:
+        prediction = predictor.predict_on_batch(sample['image'])
+        text += prediction[0].sentence + "\n"
+    return text
+
+# Example usage
+image_path = 'path_to_your_image.jpg'
+image = cv2.imread(image_path)
+
+print("Tesseract OCR Output:")
+print(run_tesseract(image))
+
+print("\nEasyOCR Output:")
+print(run_easyocr(image))
+
+print("\nKeras-OCR Output:")
+print(run_keras_ocr(image))
+
+# For OCRmyPDF, we need to work with a PDF
+with tempfile.NamedTemporaryFile(suffix=".pdf") as temp_pdf:
+    cv2.imwrite(temp_pdf.name, image)
+    print("\nOCRmyPDF Output:")
+    print(run_ocrmypdf(temp_pdf.name, temp_pdf.name))
+
+print("\nCalamari-OCR Output:")
+print(run_calamari_ocr(image))
