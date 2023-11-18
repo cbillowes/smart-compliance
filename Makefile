@@ -1,44 +1,27 @@
 
 default: pytest
 
-# default: pylint pytest
-
-# pylint:
-# 	find . -iname "*.py" -not -path "./tests/test_*" | xargs -n1 -I {}  pylint --output-format=colorized {}; true
-
 pytest:
 	echo "no tests"
 
-# ----------------------------------
-#         LOCAL SET UP
-# ----------------------------------
-
 install_requirements:
-	@pip install -r requirements.txt
+	pip install -r requirements.txt
 
-# ----------------------------------
-#         HEROKU COMMANDS
-# ----------------------------------
+install_requirements_dev:
+	pip install -r requirements.txt
+	pip install -r requirements-dev.txt
+	pip install -e .
 
 streamlit:
-	-@streamlit run web/app.py
+	streamlit run smart_compliance/app.py
 
-
-uvicorn:
-	-@uvicorn api.fast:app --reload
-
-
-# ----------------------------------
-#    LOCAL INSTALL COMMANDS
-# ----------------------------------
 install:
-	@pip install . -U
+	pip install . -U
 
 clean:
-	@rm -fr */__pycache__
-	@rm -fr __init__.py
-	@rm -fr build
-	@rm -fr dist
-	@rm -fr *.dist-info
-	@rm -fr *.egg-info
-	-@rm model.joblib
+	rm -fr */__pycache__
+	rm -fr __init__.py
+	rm -fr build
+	rm -fr dist
+	rm -fr *.dist-info
+	rm -fr *.egg-info
