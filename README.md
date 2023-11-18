@@ -1,7 +1,6 @@
 # Smart Compliance
 
-A fraud reduction strategy for KYC compliance.
-Take a selfie with a legal document to detect and compare photos.
+A fraud reduction strategy for financial institutions done in a few easy steps.
 
 ![Hero image](./hero.png "Hero image")
 

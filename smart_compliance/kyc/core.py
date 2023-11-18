@@ -4,7 +4,7 @@ from smart_compliance.kyc.detector import extract_faces, with_rectangles
 
 
 class KycPhoto:
-    def __init__(self, image, scale_factor=1.1, padding=50) -> None:
+    def __init__(self, image, scale_factor=1.1, padding=0) -> None:
         self.original, self.processed = process(
             image, scale_factor=scale_factor)
         faces = extract_faces(

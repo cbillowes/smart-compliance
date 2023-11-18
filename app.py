@@ -11,24 +11,29 @@ st.session_state = {
     "similarity_metrics": [],
 }
 
+models = [
+    "Facenet",
+    "OpenFace",
+    "ArcFace",
+]
+
+similarity_metrics = [
+    "cosine",
+    "euclidean",
+    "euclidean_l2"
+]
+
 
 def models_form():
     with st.sidebar.expander("Step 1: Choose your models"):
-        st.session_state["models"] = st.multiselect("Choose your models", [
-            "Facenet",
-            "OpenFace",
-            "ArcFace",
-        ], key="models")
+        st.session_state["models"] = st.multiselect(
+            "Trained models to detect and predict", options=models, default=models, key="models")
 
 
 def similarity_metrics_form():
     with st.sidebar.expander("Step 2: Choose your similarity metrics"):
         st.session_state["similarity_metrics"] = st.multiselect(
-            "Choose your distance metrics", [
-                "cosine",
-                "euclidean",
-                "euclidean_l2"
-            ], key="similarity_metrics")
+            "Metrics used to determine similarities", options=similarity_metrics, default=similarity_metrics, key="similarity_metrics")
 
 
 def selfie_form():
@@ -45,7 +50,7 @@ def selfie_form():
             "Scale the image by a factor of", min_value=1.0, max_value=3.0, value=1.1, step=0.1, key="selfie_scale_factor")
 
         padding = st.slider(
-            "Pad image by pixels", min_value=0, max_value=200, value=50, step=10, key="selfie_padding_pixels")
+            "Pad image by pixels", min_value=0, max_value=200, value=0, step=10, key="selfie_padding_pixels")
 
         selfie = None
 
@@ -115,7 +120,7 @@ def document_form():
             "Scale the image by a factor of", min_value=1.0, max_value=3.0, value=1.1, step=0.1, key="doc_scale_factor")
 
         padding = st.slider(
-            "Pad image by pixels", min_value=0, max_value=200, value=50, step=10, key="doc_padding_pixels")
+            "Pad image by pixels", min_value=0, max_value=200, value=0, step=10, key="doc_padding_pixels")
 
         document = None
 
@@ -173,16 +178,17 @@ def details_form():
             last_name = st.text_input('Last name')
             id_number = st.text_input('ID number / passport / NIC')
             dob = st.date_input('Date of birth')
-            st.form_submit_button("Submit", use_container_width=True, type="primary")
+            st.form_submit_button(
+                "Submit", use_container_width=True, type="primary")
 
 
 def main():
     st.set_page_config(
-        page_title="Smart Compliance", page_icon="✨")
+        page_title="Smart Compliance", page_icon="✨", layout="wide")
 
     st.title("Smart Compliance ✨")
     st.write(
-        "A fraud reduction strategy for financial institutions done in three easy steps.")
+        "A fraud reduction strategy for financial institutions done in a few easy steps.")
 
     st.sidebar.title("Compliance documents")
 
@@ -191,6 +197,10 @@ def main():
     selfie_form()
     document_form()
     details_form()
+
+    st.sidebar.divider()
+    st.sidebar.image("./hero.png", use_column_width=True,
+                     caption="Smart Compliance - Le Wagon Project for Batch #1287 Mauritius with Clarice Bouwer, Amit Malik and Vighnesh Gaya.")
 
 
 if __name__ == "__main__":

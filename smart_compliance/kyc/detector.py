@@ -26,7 +26,7 @@ def detect_faces(image,
 def with_rectangles(image,
                     cascade_path="haarcascade_frontalface_default.xml",
                     scale_factor=1.1,
-                    padding=50,
+                    padding=0,
                     min_neighbors=5,
                     min_size=(30, 30)):
     faces = detect_faces(image,
@@ -43,7 +43,7 @@ def with_rectangles(image,
     return image
 
 
-def extract_faces(image, scale_factor=1.1, padding=50):
+def extract_faces(image, scale_factor=1.1, padding=0):
     faces = []
     for face in detect_faces(image, scale_factor=scale_factor):
         (x, y, w, h) = face
