@@ -13,9 +13,7 @@ setup(
     long_description_content_type="text/markdown",
     url="https://smart-compliance.streamlit.app/",
     license="MIT",
-    packages=find_packages(
-        exclude=("smart_compliance/tests")
-    ),
+    packages=find_packages(),
     data_files=[
         ("", ["requirements.txt"]),
     ],
