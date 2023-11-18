@@ -2,6 +2,7 @@ from smart_compliance.kyc.core import KycPhoto, Kyc
 from smart_compliance.kyc.detector import verify_face
 import streamlit as st
 import numpy as np
+import pandas as pd
 import cv2
 
 kyc = Kyc()
@@ -12,6 +13,7 @@ st.session_state = {
 }
 
 models = [
+    "VGG-Face",
     "Facenet",
     "OpenFace",
     "ArcFace",
@@ -87,18 +89,18 @@ def selfie_form():
         if kyc.selfie != None:
             models = st.session_state["models"]
             similarity_metrics = st.session_state["similarity_metrics"]
-
-            cols_faces = st.columns(len(kyc.selfie.faces) + 1)
-            cols_results = st.columns(len(kyc.selfie.faces) + 1)
-            cols_faces[0].image(
-                kyc.base_image, caption=f"Base image {kyc.base_image.shape}", use_column_width=True)
-            cols_results[0].write(verify_face(
-                kyc.base_image, kyc.base_image, models, similarity_metrics))
+            results = []
             for i, face in enumerate(kyc.selfie.faces):
-                cols_faces[i+1].image(face,
-                                      caption=f"Face {i+1} {face.shape}", use_column_width=True)
-                cols_results[i+1].write(verify_face(kyc.base_image,
-                                        face, models, similarity_metrics))
+                results = pd.DataFrame(verify_face(
+                    kyc.base_image, face, models, similarity_metrics))
+                st.data_editor(
+                    results,
+                    column_config={
+                        "face": st.column_config.ImageColumn("Face", help="Detected face"),
+                        "model": st.column_config.TextColumn("Models", help="Model used to detect and predict"),
+                        "similarity_metric": st.column_config.TextColumn("Similarity metrics", help="Model used to detect and predict"),
+                    }
+                )
 
 
 def document_form():
@@ -162,8 +164,6 @@ def document_form():
             cols_results = st.columns(len(kyc.document.faces) + 1)
             cols_faces[0].image(
                 kyc.base_image, caption=f"Base image {kyc.base_image.shape}", use_column_width=True)
-            cols_results[0].write(verify_face(
-                kyc.base_image, kyc.base_image, models, similarity_metrics))
             for i, face in enumerate(kyc.document.faces):
                 cols_faces[i+1].image(face,
                                       caption=f"Face {i+1} {face.shape}", use_column_width=True)

@@ -1,4 +1,5 @@
 from deepface import DeepFace
+import base64
 import cv2
 
 
@@ -65,23 +66,11 @@ def verify_face(base_image, image, models, distance_metrics, detector_backend="o
             results.append(result)
 
     results = [{
-        "distance": result['distance'],
+        "face": f"data:image/jpg;base64,{base64.b64encode(cv2.imencode('.jpg', cv2.cvtColor(image, cv2.COLOR_BGR2RGB))[1]).decode('utf-8')}",
+        "model": result['model'],
         "similarity_metric": result['similarity_metric'],
+        "distance": result['distance'],
         "threshold": result['threshold'],
-        "model": result['model']
     } for result in results if result['verified'] == True]
     return results
 
-
-def verify_faces(base_image, images, models, distance_metrics):
-    results = []
-    for model in models:
-        for distance_metric in distance_metrics:
-            for image in images:
-                result = verify_face(
-                    base_image, image, model_name=model, distance_metric=distance_metric)
-                if (result['verified'] == True):
-                    return result
-                else:
-                    results.append(result)
-    return results
