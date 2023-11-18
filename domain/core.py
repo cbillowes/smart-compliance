@@ -1,23 +1,6 @@
 import numpy as np
-import matplotlib.pyplot as plt
 from domain.preparator import process
-from domain.detector import extract_faces, with_rectangles, verify_faces
-from domain.extractor import extract_characters
-
-models = [
-    # "VGG-Face",
-    # "Facenet",
-    # "OpenFace",
-    # "DeepFace",
-    "ArcFace",
-]
-
-distance_metrics = [
-    # "cosine",
-    # "euclidean",
-    "euclidean_l2"
-]
-
+from domain.detector import extract_faces, with_rectangles
 
 class KycPhoto:
     def __init__(self, image, scale_factor=1.1, padding=50) -> None:
@@ -53,9 +36,3 @@ class Kyc:
 
     def register_document(self, document):
         self.document = document
-
-    def verify_selfie(self, models=models, distance_metrics=distance_metrics):
-        return verify_faces(self.base_image, self.selfie.faces, models=models, distance_metrics=distance_metrics)
-
-    def verify_document(self, models=models, distance_metrics=distance_metrics):
-        return verify_faces(self.base_image, self.document.faces, models=models, distance_metrics=distance_metrics)

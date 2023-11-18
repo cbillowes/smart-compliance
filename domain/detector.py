@@ -23,7 +23,6 @@ def detect_faces(image,
         return []
 
 
-# TODO: add padding to detection and extraction and customize on the fly
 def with_rectangles(image,
                     cascade_path="haarcascade_frontalface_default.xml",
                     scale_factor=1.1,
@@ -64,6 +63,13 @@ def verify_face(base_image, image, models, distance_metrics, detector_backend="o
                                      detector_backend=detector_backend,
                                      enforce_detection=False)
             results.append(result)
+
+    results = [{
+        "distance": result['distance'],
+        "similarity_metric": result['similarity_metric'],
+        "threshold": result['threshold'],
+        "model": result['model']
+    } for result in results if result['verified'] == True]
     return results
 
 
