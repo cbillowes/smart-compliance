@@ -1,6 +1,6 @@
 import cv2
-from domain.rotate import rotate
-from domain.detector import detect_faces
+from smart_compliance.kyc.rotate import rotate
+from smart_compliance.kyc.detector import detect_faces
 import matplotlib.pyplot as plt
 
 

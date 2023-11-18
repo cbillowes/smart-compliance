@@ -1,6 +1,7 @@
 import numpy as np
-from domain.preparator import process
-from domain.detector import extract_faces, with_rectangles
+from smart_compliance.kyc.preparator import process
+from smart_compliance.kyc.detector import extract_faces, with_rectangles
+
 
 class KycPhoto:
     def __init__(self, image, scale_factor=1.1, padding=50) -> None:
@@ -18,10 +19,6 @@ class KycPhoto:
                 faces, key=lambda face: face.shape[0] * face.shape[1])
             self.faces = [face for face in faces if np.array_equal(
                 face, self.base_image) == False]
-
-    def init_from_disk(self, image_path):
-        image = cv2.cvtColor(cv2.imread(image_path), cv2.COLOR_BGR2RGB)
-        self.__init__(image)
 
 
 class Kyc:

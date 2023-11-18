@@ -1,11 +1,8 @@
 numpy
 streamlit
 deepface
-fastapi
-uvicorn
 opencv-python
 python-multipart
 openface
 pytesseract
 Pillow
-./smart_compliance
