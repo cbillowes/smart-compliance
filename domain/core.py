@@ -1,6 +1,6 @@
 import numpy as np
 import matplotlib.pyplot as plt
-from domain.preparator import prepare
+from domain.preparator import process
 from domain.detector import extract_faces, with_rectangles, verify_faces
 from domain.extractor import extract_characters
 
@@ -19,107 +19,43 @@ distance_metrics = [
 ]
 
 
-def plot_images(title, images):
-    cols = len(images) if len(images) > 0 else 1
-    fig, axs = plt.subplots(1, cols, figsize=(15, 5))
-    fig.suptitle(title)
-    for i, image in enumerate(images):
-        axs[i].imshow(image)
-    fig.show()
+class KycPhoto:
+    def __init__(self, image, scale_factor=1.1, padding=50) -> None:
+        self.original, self.processed = process(
+            image, scale_factor=scale_factor)
+        faces = extract_faces(
+            self.processed, scale_factor=scale_factor, padding=padding)
+        self.detected_faces = with_rectangles(
+            self.processed, scale_factor=scale_factor, padding=padding)
+
+        self.base_image = None
+        self.faces = []
+        if len(faces) > 0:
+            self.base_image = max(
+                faces, key=lambda face: face.shape[0] * face.shape[1])
+            self.faces = [face for face in faces if np.array_equal(
+                face, self.base_image) == False]
+
+    def init_from_disk(self, image_path):
+        image = cv2.cvtColor(cv2.imread(image_path), cv2.COLOR_BGR2RGB)
+        self.__init__(image)
 
 
-def plot_faces(title, original_image, processed_image, faces):
-    cols = len(faces) if len(faces) > 0 else 1
-    fig, axs = plt.subplots(1, cols + 2, figsize=(15, 5))
-    fig.suptitle(title)
-    axs[0].imshow(original_image)
-    axs[1].imshow(with_rectangles(processed_image))
-    for i, face in enumerate(faces):
-        axs[i + 2].imshow(face)
-    fig.show()
+class Kyc:
+    def __init__(self) -> None:
+        self.base_image = None
+        self.selfie = None
+        self.document = None
 
+    def register_selfie(self, selfie):
+        self.selfie = selfie
+        self.base_image = selfie.base_image
 
-class SmartCompliance:
-    """
-    The main entry point to handle the KYC of a Smart Compliance process.
-    Two images are required: a selfie and a photo of the ID document or passport.
-    """
+    def register_document(self, document):
+        self.document = document
 
-    def __init__(self, selfie_image, document_image) -> None:
-        try:
-            self.prepare_selfies(selfie_image)
-            self.prepare_documents(document_image)
-        except Exception as e:
-            print(e)
+    def verify_selfie(self, models=models, distance_metrics=distance_metrics):
+        return verify_faces(self.base_image, self.selfie.faces, models=models, distance_metrics=distance_metrics)
 
-    def prepare_selfies(self, selfie_image, zoom_factor=1.1, scale_factor=1.1):
-        original, selfie = prepare(selfie_image, zoom_factor=zoom_factor)
-        self.original_selfie_image = original
-        self.selfie_image = selfie
-        self.selfie_faces = extract_faces(
-            self.selfie_image, scale_factor=scale_factor)
-        self.base_image = max(
-            self.selfie_faces, key=lambda face: face.shape[0] * face.shape[1])
-        self.selfie_document_faces = [
-            face for face in self.selfie_faces if np.array_equal(face, self.base_image) == False]
-
-    def prepare_documents(self, document_image, zoom_factor=1.1, scale_factor=1.1):
-        original, legal_document = prepare(
-            document_image, zoom_factor=zoom_factor)
-        self.original_legal_document_image = original
-        self.legal_document_image = legal_document
-        self.legal_document_faces = extract_faces(
-            self.legal_document_image, scale_factor=scale_factor)
-
-    def preview(self):
-        plot_faces("Selfie",
-                   self.original_selfie_image,
-                   self.selfie_image,
-                   self.selfie_faces)
-        plot_faces("Legal document",
-                   self.original_legal_document_image,
-                   self.legal_document_image,
-                   self.legal_document_faces)
-        plot_images("Selfie faces to be compared with base image",
-                    [self.base_image, *self.selfie_document_faces])
-        plot_images("Legal document faces to be compared with base image", [
-                    self.base_image,
-                    *self.legal_document_faces])
-
-    def verify_selfie_faces(self):
-        for model in models:
-            for distance_metric in distance_metrics:
-                selfie_results = verify_faces(self.base_image,
-                                              self.selfie_document_faces,
-                                              model_name=model,
-                                              distance_metric=distance_metric)
-                if (selfie_results['verified'] == True):
-                    return selfie_results
-
-    def verify_legal_document_faces(self):
-        for model in models:
-            for distance_metric in distance_metrics:
-                legal_results = verify_faces(self.base_image,
-                                             self.legal_document_faces,
-                                             model_name=model,
-                                             distance_metric=distance_metric)
-                if (legal_results['verified'] == True):
-                    return legal_results
-
-    def verify(self):
-        selfie_results = self.verify_selfie_faces()
-        legal_results = self.verify_legal_document_faces()
-        return (selfie_results, legal_results)
-
-    def extract_text(self):
-        return extract_characters(self.legal_document_image)
-
-    def verify_text(self, first_name, last_name, date_of_birth, identification_number):
-        # selfie_text = extract_characters(self.base_image)
-        # legal_text = extract_characters(self.legal_document_image)
-        # # if (selfie_text == legal_text):
-        # #     legal_text.contains(first_name)
-        # #     legal_text.contains(last_name)
-        # #     legal_text.contains(date_of_birth)
-        # #     legal_text.contains(identification_number)
-        extract_characters(self.legal_document_image)
+    def verify_document(self, models=models, distance_metrics=distance_metrics):
+        return verify_faces(self.base_image, self.document.faces, models=models, distance_metrics=distance_metrics)

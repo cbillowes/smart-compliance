@@ -34,3 +34,16 @@ ML Flow:
 - Docker for API
 - GCP for API
 - Streamlit cloud for UI
+
+
+## Other
+
+https://github.com/davisking/dlib/issues/2380
+
+```
+python3 -m venv env
+brew install cmake
+brew install dlib
+source env/bin/activate
+python3 -m pip install dlib
+```
