@@ -1,5 +1,10 @@
 # Smart Compliance
 
+A fraud reduction strategy for KYC compliance.
+Take a selfie with a legal document to detect and compare photos.
+
+![Hero image](./hero.png "Hero image")
+
 ## UI component:
 Ask for name, last name, id / passport / nic, dob + upload photo of face, holding id document. Create a Streamlit front end application.
 
@@ -21,29 +26,3 @@ https://www.youtube.com/watch?v=WnUVYQP4h44 (DeepFace: A Facial Recognition Libr
 Extract text from id document (OCR)
 
 https://huggingface.co/models?pipeline_tag=image-to-text
-
-## API:
-Get the photo, detect and compare photo of person with their ID card photo and verify the personal information provided that is read from the ID document.
-
-## UI component:
-Output the result to the UI to say the “fraud probability score / percentage”
-
-## Deployment considerations:
-
-ML Flow:
-- Docker for API
-- GCP for API
-- Streamlit cloud for UI
-
-
-## Other
-
-https://github.com/davisking/dlib/issues/2380
-
-```
-python3 -m venv env
-brew install cmake
-brew install dlib
-source env/bin/activate
-python3 -m pip install dlib
-```
