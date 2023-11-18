@@ -23,13 +23,11 @@ class KycPhoto:
 
 class Kyc:
     def __init__(self) -> None:
-        self.base_image = None
         self.selfie = None
         self.document = None
 
     def register_selfie(self, selfie):
         self.selfie = selfie
-        self.base_image = selfie.base_image
 
     def register_document(self, document):
         self.document = document

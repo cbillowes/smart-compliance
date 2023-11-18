@@ -92,13 +92,19 @@ def selfie_form():
             results = []
             for i, face in enumerate(kyc.selfie.faces):
                 results = pd.DataFrame(verify_face(
-                    kyc.base_image, face, models, similarity_metrics))
+                    kyc.selfie.base_image, face, models, similarity_metrics)).sort_values(by=['verified'], ascending=False)
                 st.data_editor(
                     results,
+                    hide_index=True,
+                    use_container_width=True,
                     column_config={
+                        "base": st.column_config.ImageColumn("Base", help="Base image"),
                         "face": st.column_config.ImageColumn("Face", help="Detected face"),
-                        "model": st.column_config.TextColumn("Models", help="Model used to detect and predict"),
-                        "similarity_metric": st.column_config.TextColumn("Similarity metrics", help="Model used to detect and predict"),
+                        "verified": st.column_config.CheckboxColumn("Verified", help="Indicates if the similarity is high enough to be a match"),
+                        "model": st.column_config.TextColumn("Model", help="Model used to detect and predict"),
+                        "similarity_metric": st.column_config.TextColumn("Similarity metric", help="Model used to detect and predict"),
+                        "distance": st.column_config.NumberColumn("Distance", help="Distance between the two faces"),
+                        "threshold": st.column_config.NumberColumn("Threshold", help="Threshold used to determine if the two faces are the same"),
                     }
                 )
 
@@ -159,16 +165,53 @@ def document_form():
         if kyc.document != None:
             models = st.session_state["models"]
             similarity_metrics = st.session_state["similarity_metrics"]
-
-            cols_faces = st.columns(len(kyc.document.faces) + 1)
-            cols_results = st.columns(len(kyc.document.faces) + 1)
-            cols_faces[0].image(
-                kyc.base_image, caption=f"Base image {kyc.base_image.shape}", use_column_width=True)
+            results = []
             for i, face in enumerate(kyc.document.faces):
-                cols_faces[i+1].image(face,
-                                      caption=f"Face {i+1} {face.shape}", use_column_width=True)
-                cols_results[i+1].write(verify_face(kyc.base_image,
-                                        face, models, similarity_metrics))
+                results = pd.DataFrame(verify_face(
+                    kyc.document.base_image, face, models, similarity_metrics)).sort_values(by=['verified'], ascending=False)
+                st.data_editor(
+                    results,
+                    hide_index=True,
+                    use_container_width=True,
+                    column_config={
+                        "base": st.column_config.ImageColumn("Base", help="Base image"),
+                        "face": st.column_config.ImageColumn("Face", help="Detected face"),
+                        "verified": st.column_config.CheckboxColumn("Verified", help="Indicates if the similarity is high enough to be a match"),
+                        "model": st.column_config.TextColumn("Model", help="Model used to detect and predict"),
+                        "similarity_metric": st.column_config.TextColumn("Similarity metric", help="Model used to detect and predict"),
+                        "distance": st.column_config.NumberColumn("Distance", help="Distance between the two faces"),
+                        "threshold": st.column_config.NumberColumn("Threshold", help="Threshold used to determine if the two faces are the same"),
+                    }
+                )
+
+
+def verification_form():
+    with st.expander("Verification"):
+        col1, col2 = st.columns(2)
+        with col1:
+            st.image(
+                kyc.selfie.base_image, caption=f"Selfie", use_column_width=True)
+
+        with col2:
+            st.image(
+                kyc.document.base_image, caption=f"Document", use_column_width=True)
+
+        results = pd.DataFrame(verify_face(
+            kyc.selfie.base_image, kyc.document.base_image, models, similarity_metrics)).sort_values(by=['verified'], ascending=False)
+        st.data_editor(
+            results,
+            hide_index=True,
+            use_container_width=True,
+            column_config={
+                "base": st.column_config.ImageColumn("Base", help="Base image"),
+                "face": st.column_config.ImageColumn("Face", help="Detected face"),
+                "verified": st.column_config.CheckboxColumn("Verified", help="Indicates if the similarity is high enough to be a match", disabled=True),
+                "model": st.column_config.TextColumn("Model", help="Model used to detect and predict"),
+                "similarity_metric": st.column_config.TextColumn("Similarity metric", help="Model used to detect and predict"),
+                "distance": st.column_config.NumberColumn("Distance", help="Distance between the two faces"),
+                "threshold": st.column_config.NumberColumn("Threshold", help="Threshold used to determine if the two faces are the same"),
+            }
+        )
 
 
 def details_form():
@@ -184,7 +227,7 @@ def details_form():
 
 def main():
     st.set_page_config(
-        page_title="Smart Compliance", page_icon="✨", layout="wide")
+        page_title="Smart Compliance", page_icon="✨")
 
     st.title("Smart Compliance ✨")
     st.write(
@@ -196,6 +239,7 @@ def main():
     similarity_metrics_form()
     selfie_form()
     document_form()
+    verification_form()
     details_form()
 
     st.sidebar.divider()
