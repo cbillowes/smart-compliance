@@ -1,6 +1,6 @@
 numpy
 deepface
-opencv-python
+opencv-python-headless
 python-multipart
 openface
 pytesseract

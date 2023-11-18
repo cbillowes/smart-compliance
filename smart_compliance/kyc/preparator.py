@@ -1,7 +1,6 @@
 import cv2
 from smart_compliance.kyc.rotate import rotate
 from smart_compliance.kyc.detector import detect_faces
-import matplotlib.pyplot as plt
 
 
 def detected_faces(image):

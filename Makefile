@@ -13,7 +13,7 @@ install_requirements_dev:
 	pip install -e .
 
 streamlit:
-	streamlit run smart_compliance/app.py
+	streamlit run app.py
 
 install:
 	pip install . -U

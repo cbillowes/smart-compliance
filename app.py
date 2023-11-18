@@ -1,6 +1,3 @@
-# from kyc.core import KycPhoto, Kyc
-# from smart_compliance.kyc.detector import verify_face
-
 from smart_compliance.kyc.core import KycPhoto, Kyc
 from smart_compliance.kyc.detector import verify_face
 import streamlit as st
