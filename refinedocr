@@ -1,0 +1,57 @@
+import cv2
+import pytesseract
+from PIL import Image
+import re
+
+def preprocess_image(image):
+    # Convert to grayscale
+    grayscale = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
+
+    # Noise reduction
+    grayscale = cv2.medianBlur(grayscale, 5)
+
+    # Adaptive thresholding
+    threshold = cv2.adaptiveThreshold(
+        grayscale, 255, cv2.ADAPTIVE_THRESH_GAUSSIAN_C, cv2.THRESH_BINARY, 11, 2)
+
+    return threshold
+
+def dynamic_resize(image):
+    # Dynamically resize based on the image dimensions
+    height, width = image.shape[:2]
+    scaling_factor = max(10, 1000 // min(height, width))
+    return cv2.resize(image, (0, 0), fx=scaling_factor, fy=scaling_factor)
+
+def extract_text(image):
+    # Preprocess and resize the image
+    processed_image = preprocess_image(image)
+    resized_image = dynamic_resize(processed_image)
+
+    # Convert to PIL Image format for pytesseract
+    pil_image = Image.fromarray(resized_image)
+
+    # Extract text using pytesseract
+    raw_text = pytesseract.image_to_string(pil_image)
+
+    return raw_text
+
+import re
+
+def refine_extracted_text(text):
+    dates = re.findall(r'\b\d{1,2}[/-]\d{1,2}[/-]\d{2,4}\b', text)
+
+    name_match = re.search(r'Name: (.+)', text)
+    id_match = re.search(r'ID: (\d+)', text)
+
+    name = name_match.group(1) if name_match else ''
+    id_number = id_match.group(1) if id_match else ''
+
+    return {
+        'raw_text': text,
+        'extracted_dates': dates,
+        'first_name': name.split()[0] if name else '',  
+        'last_name': ' '.join(name.split()[1:]) if name else '',  
+        'id_number': id_number
+    }
+
+
