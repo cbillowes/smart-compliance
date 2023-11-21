@@ -186,6 +186,9 @@ def document_form():
 
 
 def verification_form():
+    if (kyc.selfie == None and kyc.document == None):
+        return
+
     with st.expander("Verification"):
         col1, col2 = st.columns(2)
         with col1:
