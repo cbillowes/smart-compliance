@@ -20,6 +20,7 @@ def detect_faces(image,
                                               minSize=min_size)
         return faces
     except Exception as e:
+        print("ERRRRROR")
         print(e)
         return []
 
@@ -42,6 +43,31 @@ def with_rectangles(image,
                       (x + w + padding, y + h + padding), (255, 0, 0), 5)
 
     return image
+
+
+def with_rectangles2(image,
+                    cascade_path="haarcascade_frontalface_default.xml",
+                    scale_factor=1.1,
+                    padding=0,
+                    min_neighbors=5,
+                    min_size=(30, 30)):
+    faces = detect_faces(image,
+                         cascade_path=cascade_path,
+                         scale_factor=scale_factor,
+                         min_neighbors=min_neighbors,
+                         min_size=min_size)
+
+    detection = []
+    for face in faces:
+        (x, y, w, h) = face
+        detection.append({
+            "left": x - padding,
+            "top": y - padding,
+            "width": x + w + padding,
+            "height": y + h + padding,
+        })
+
+    return detection
 
 
 def extract_faces(image, scale_factor=1.1, padding=0):
@@ -75,4 +101,3 @@ def verify_face(base_image, image, models, distance_metrics, detector_backend="o
         "threshold": result['threshold'],
     } for result in results]
     return results
-

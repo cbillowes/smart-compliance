@@ -27,38 +27,57 @@ similarity_metrics = [
     "euclidean_l2"
 ]
 
-def throwaway():
+
+def cropper():
     drawing_mode = "rect"
     stroke_width = 3
     stroke_color = "#000"
     bg_color = "transparent"
     realtime_update = True
-    bg_image = st.file_uploader("Background image:", type=["png", "jpg"])
 
-    if bg_image:
-        height = Image.open(bg_image).size[1]
-        width = Image.open(bg_image).size[0]
+    selfie = st.file_uploader("Upload a background image", type=['jpg', 'png', 'jpeg'])
+
+    if selfie:
+        image = cv2.imdecode(np.fromstring(
+            selfie.read(), np.uint8), cv2.IMREAD_UNCHANGED)
+        kyc.register_selfie(
+            KycPhoto(image, scale_factor=1.1, padding=0))
+
+        if kyc.selfie == None:
+            return
+
+        objects = kyc.selfie.detected_faces
+        (height, width) = image.shape[:2]
         canvas_result = st_canvas(
-            fill_color="rgba(255, 165, 0, 0.3)",  # Fixed fill color with some opacity
+            fill_color="rgba(255, 165, 0, 0.3)",
             stroke_width=stroke_width,
             stroke_color=stroke_color,
             background_color=bg_color,
-            background_image=Image.open(bg_image) if bg_image else None,
+            background_image=Image.fromarray(kyc.selfie.detected_faces),
             update_streamlit=realtime_update,
-            height=height,
-            width=width,
+            height=height / 2,
+            width=width / 2,
             drawing_mode=drawing_mode,
             point_display_radius=0,
             key="canvas",
+            # initial_drawing=objects
         )
 
-        if canvas_result.image_data is not None:
-            st.image(canvas_result.image_data)
+        # draw line on canvas_result
         if canvas_result.json_data is not None:
-            objects = pd.json_normalize(canvas_result.json_data["objects"]) # need to convert obj to str because PyArrow
+            objects = pd.json_normalize(canvas_result.json_data["objects"])
             for col in objects.select_dtypes(include=['object']).columns:
                 objects[col] = objects[col].astype("str")
             st.dataframe(objects)
+
+        # if canvas_result.json_data is not None:
+        #     print(canvas_result.json_data["objects"])
+        #     # need to convert obj to str because PyArrow
+        #     objects = pd.json_normalize(canvas_result.json_data["objects"])
+        #     st.write(objects)
+            # for col in objects.select_dtypes(include=['object']).columns:
+            #     objects[col] = objects[col].astype("str")
+            # st.dataframe(objects)
 
 
 def models_form():
@@ -104,7 +123,6 @@ def selfie_form():
                 selfie.read(), np.uint8), cv2.IMREAD_UNCHANGED)
             kyc.register_selfie(
                 KycPhoto(image, scale_factor=scale_factor, padding=padding))
-
 
     with st.expander("Selfie"):
         col1, col2 = st.columns(2)
@@ -274,7 +292,7 @@ def main():
 
     st.sidebar.title("Compliance documents")
 
-    throwaway()
+    cropper()
     # models_form()
     # similarity_metrics_form()
     # selfie_form()
