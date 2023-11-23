@@ -48,12 +48,6 @@ def selfie_form():
         if (media_type == ""):
             return
 
-        scale_factor = st.slider(
-            "Scale the image by a factor of", min_value=1.0, max_value=3.0, value=1.1, step=0.1, key="selfie_scale_factor")
-
-        padding = st.slider(
-            "Pad image by pixels", min_value=0, max_value=200, value=0, step=10, key="selfie_padding_pixels")
-
         selfie = None
 
         if media_type == "Camera/Webcam":
@@ -68,7 +62,7 @@ def selfie_form():
             image = cv2.imdecode(np.fromstring(
                 selfie.read(), np.uint8), cv2.IMREAD_UNCHANGED)
             kyc.register_selfie(
-                KycPhoto(image, scale_factor=scale_factor, padding=padding))
+                KycPhoto(image))
 
     with st.expander("Selfie"):
         col1, col2 = st.columns(2)
@@ -92,9 +86,11 @@ def selfie_form():
             results = []
             for i, face in enumerate(kyc.selfie.faces):
                 results = pd.DataFrame(verify_face(
-                    kyc.selfie.base_image, face, models, similarity_metrics)).sort_values(by=['verified'], ascending=False)
+                    kyc.selfie.base_image, face, models, similarity_metrics))
+
                 st.data_editor(
                     results,
+                    key=f"selfie_results_{i}",
                     hide_index=True,
                     use_container_width=True,
                     column_config={
@@ -124,12 +120,6 @@ def document_form():
         if (media_type == ""):
             return
 
-        scale_factor = st.slider(
-            "Scale the image by a factor of", min_value=1.0, max_value=3.0, value=1.1, step=0.1, key="doc_scale_factor")
-
-        padding = st.slider(
-            "Pad image by pixels", min_value=0, max_value=200, value=0, step=10, key="doc_padding_pixels")
-
         document = None
 
         if media_type == "Camera/Webcam":
@@ -144,7 +134,7 @@ def document_form():
             image = cv2.imdecode(np.fromstring(
                 document.read(), np.uint8), cv2.IMREAD_UNCHANGED)
             kyc.register_document(
-                KycPhoto(image, scale_factor=scale_factor, padding=padding))
+                KycPhoto(image))
 
     with st.expander("Legal document"):
         col1, col2 = st.columns(2)
@@ -186,7 +176,7 @@ def document_form():
 
 
 def verification_form():
-    if (kyc.selfie == None and kyc.document == None):
+    if (kyc.selfie == None or kyc.document == None):
         return
 
     with st.expander("Verification"):

@@ -3,53 +3,48 @@ import base64
 import cv2
 
 
-def detect_faces(image,
-                 cascade_path="haarcascade_frontalface_default.xml",
-                 scale_factor=1.1,
-                 min_neighbors=5,
-                 min_size=(30, 30)):
-    """
-    https://github.com/kipr/opencv/tree/master/data/haarcascades
-    """
+def detect_faces(image):
     try:
-        file = f"{cv2.data.haarcascades}{cascade_path}"
-        face_cascade = cv2.CascadeClassifier(file)
-        faces = face_cascade.detectMultiScale(image,
-                                              scaleFactor=scale_factor,
-                                              minNeighbors=min_neighbors,
-                                              minSize=min_size)
-        return faces
+        backends = [
+            'opencv',
+            'ssd',
+            'dlib',
+            'mtcnn',
+            'retinaface',
+            'mediapipe',
+            'yolov8',
+            'yunet',
+            'fastmtcnn',
+        ]
+        return DeepFace.extract_faces(img_path = image,
+            target_size = (224, 224),
+            detector_backend = backends[4]
+        )
     except Exception as e:
-        print(e)
+        print("Exception: ", e)
         return []
 
-
-def with_rectangles(image,
-                    cascade_path="haarcascade_frontalface_default.xml",
-                    scale_factor=1.1,
-                    padding=0,
-                    min_neighbors=5,
-                    min_size=(30, 30)):
-    faces = detect_faces(image,
-                         cascade_path=cascade_path,
-                         scale_factor=scale_factor,
-                         min_neighbors=min_neighbors,
-                         min_size=min_size)
+def with_rectangles(image):
+    faces = detect_faces(image)
 
     for face in faces:
-        (x, y, w, h) = face
-        cv2.rectangle(image, (x - padding, y - padding),
-                      (x + w + padding, y + h + padding), (255, 0, 0), 5)
+        try:
+            facial_area = face["facial_area"]
+            x = facial_area["x"]
+            y = facial_area["y"]
+            w = facial_area["w"]
+            h = facial_area["h"]
+            cv2.rectangle(image, (x, y), (x + w, y + h), (255, 0, 0), 5)
+        except Exception as e:
+            print("Problem drawing face: " + str(e))
 
     return image
 
 
-def extract_faces(image, scale_factor=1.1, padding=0):
+def extract_faces(image):
     faces = []
-    for face in detect_faces(image, scale_factor=scale_factor):
-        (x, y, w, h) = face
-        faces.append(image[y - padding: y + h + padding,
-                     x - padding: x + w + padding])
+    for face in detect_faces(image):
+        faces.append(face["face"])
     return faces
 
 
@@ -58,11 +53,11 @@ def verify_face(base_image, image, models, distance_metrics, detector_backend="o
     for model in models:
         for distance_metric in distance_metrics:
             result = DeepFace.verify(img1_path=base_image,
-                                     img2_path=image,
-                                     model_name=model,
-                                     distance_metric=distance_metric,
-                                     detector_backend=detector_backend,
-                                     enforce_detection=False)
+                                    img2_path=image,
+                                    model_name=model,
+                                    distance_metric=distance_metric,
+                                    detector_backend=detector_backend,
+                                    enforce_detection=False)
             results.append(result)
 
     results = [{
