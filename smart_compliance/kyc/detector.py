@@ -44,7 +44,12 @@ def with_rectangles(image):
 def extract_faces(image):
     faces = []
     for face in detect_faces(image):
-        faces.append(face["face"])
+        facial_area = face["facial_area"]
+        x = facial_area["x"]
+        y = facial_area["y"]
+        w = facial_area["w"]
+        h = facial_area["h"]
+        faces.append(image[y:y+h, x:x+w])
     return faces
 
 
