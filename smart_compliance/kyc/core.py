@@ -1,15 +1,23 @@
 import numpy as np
 from smart_compliance.kyc.preparator import process
-from smart_compliance.kyc.detector import extract_faces
+from smart_compliance.kyc.detector import extract_faces_for_selfie, extract_faces_for_document
 
 
-class KycPhoto:
+class KycSelfie:
     def __init__(self, image) -> None:
         self.original, self.processed = process(image)
-        faces, image_with_rectangles = extract_faces(self.processed)
+        faces, image_with_rectangles = extract_faces_for_selfie(self.processed)
         self.detected_faces = image_with_rectangles
         self.base_image = faces[0]
         self.face = faces[1] if len(faces) > 1 else None
+
+
+class KycDocument:
+    def __init__(self, image) -> None:
+        self.original, self.processed = process(image)
+        faces, image_with_rectangles = extract_faces_for_document(self.processed)
+        self.detected_faces = image_with_rectangles
+        self.base_image = faces[0]
 
 
 class Kyc:

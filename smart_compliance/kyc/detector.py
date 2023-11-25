@@ -25,7 +25,7 @@ def detect_faces(image):
         return []
 
 
-def extract_faces(image):
+def extract_faces_for_selfie(image):
     faces = []
     for face in detect_faces(image):
         facial_area = face["facial_area"]
@@ -47,6 +47,20 @@ def extract_faces(image):
         detected_faces.append(backup[y:y + h, x:x + w])
         cv2.rectangle(image, (x, y), (x + w, y + h), (255, 0, 0), 5)
     return detected_faces, image
+
+
+def extract_faces_for_document(image):
+    faces = detect_faces(image)
+    face = faces[0] if len(faces) > 0 else None
+    if face:
+        facial_area = face["facial_area"]
+        x = facial_area["x"]
+        y = facial_area["y"]
+        w = facial_area["w"]
+        h = facial_area["h"]
+        face = image[y:y + h, x:x + w]
+        cv2.rectangle(image, (x, y), (x + w, y + h), (255, 0, 0), 5)
+    return [face], image
 
 
 def verify_face(base_image, image, models, distance_metrics, detector_backend="opencv"):
