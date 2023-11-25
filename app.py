@@ -62,79 +62,90 @@ def selfie_form():
                 selfie.read(), np.uint8), cv2.IMREAD_UNCHANGED)
             kyc.register_selfie(KycSelfie(image))
 
-    with st.expander("Selfie"):
-        col1, col2 = st.columns(2)
-        if kyc.selfie == None:
-            st.error("No selfie uploaded yet.")
-            return
+    try:
+        with st.expander("Selfie"):
+            col1, col2 = st.columns(2)
+            if kyc.selfie == None:
+                st.error("No selfie uploaded yet.")
+                return
 
-        with col1:
-            st.image(
-                kyc.selfie.original, caption=f"Original image {kyc.selfie.original.shape}", use_column_width=True)
+            with col1:
+                st.image(
+                    kyc.selfie.original, caption=f"Original image {kyc.selfie.original.shape}", use_column_width=True)
 
-        with col2:
-            st.image(
-                kyc.selfie.detected_faces, caption=f"Processed image {kyc.selfie.detected_faces.shape}", use_column_width=True)
+            with col2:
+                st.image(
+                    kyc.selfie.detected_faces, caption=f"Processed image {kyc.selfie.detected_faces.shape}", use_column_width=True)
 
-        st.divider()
+            st.divider()
 
-        if kyc.selfie != None:
-            models = st.session_state["models"]
-            similarity_metrics = st.session_state["similarity_metrics"]
-            results = pd.DataFrame(verify_face(
-                kyc.selfie.base_image, kyc.selfie.face, models, similarity_metrics))
+            if kyc.selfie != None:
+                if kyc.selfie.error != None:
+                    st.error(kyc.selfie.error)
+                    return
 
-            st.data_editor(
-                results,
-                hide_index=True,
-                use_container_width=True,
-                column_config={
-                    "base": st.column_config.ImageColumn("Base", help="Base image"),
-                    "face": st.column_config.ImageColumn("Face", help="Detected face"),
-                    "verified": st.column_config.CheckboxColumn("Verified", help="Indicates if the similarity is high enough to be a match"),
-                    "model": st.column_config.TextColumn("Model", help="Model used to detect and predict"),
-                    "similarity_metric": st.column_config.TextColumn("Similarity metric", help="Model used to detect and predict"),
-                    "distance": st.column_config.NumberColumn("Distance", help="Distance between the two faces"),
-                    "threshold": st.column_config.NumberColumn("Threshold", help="Threshold used to determine if the two faces are the same"),
-                }
-            )
+                models = st.session_state["models"]
+                similarity_metrics = st.session_state["similarity_metrics"]
+                results = pd.DataFrame(verify_face(
+                    kyc.selfie.base_image, kyc.selfie.face, models, similarity_metrics))
 
+                st.data_editor(
+                    results,
+                    hide_index=True,
+                    use_container_width=True,
+                    column_config={
+                        "base": st.column_config.ImageColumn("Base", help="Base image"),
+                        "face": st.column_config.ImageColumn("Face", help="Detected face"),
+                        "verified": st.column_config.CheckboxColumn("Verified", help="Indicates if the similarity is high enough to be a match"),
+                        "model": st.column_config.TextColumn("Model", help="Model used to detect and predict"),
+                        "similarity_metric": st.column_config.TextColumn("Similarity metric", help="Model used to detect and predict"),
+                        "distance": st.column_config.NumberColumn("Distance", help="Distance between the two faces"),
+                        "threshold": st.column_config.NumberColumn("Threshold", help="Threshold used to determine if the two faces are the same"),
+                    }
+                )
+    except Exception as e:
+        print("Could not show selfie images: " + str(e))
 
 def document_form():
-    with st.sidebar.expander("Step 4: Upload your legal document"):
+    try:
+        with st.sidebar.expander("Step 4: Upload your legal document"):
 
-        if kyc.selfie == None:
-            st.write("You need to upload the selfie first.")
-            return
+            if kyc.selfie == None:
+                st.write("You need to upload the selfie first.")
+                return
 
-        st.write("Text should be clearly visible.")
+            st.write("Text should be clearly visible.")
 
-        media_type = st.selectbox(
-            "How will you upload your document?", ("", "Camera/Webcam", "Upload"), key="doc_media_type")
+            media_type = st.selectbox(
+                "How will you upload your document?", ("", "Camera/Webcam", "Upload"), key="doc_media_type")
 
-        if (media_type == ""):
-            return
+            if (media_type == ""):
+                return
 
-        document = None
+            document = None
 
-        if media_type == "Camera/Webcam":
-            document = st.camera_input(
-                "Upload your document", key="doc_photo")
+            if media_type == "Camera/Webcam":
+                document = st.camera_input(
+                    "Upload your document", key="doc_photo")
 
-        if media_type == "Upload":
-            document = st.file_uploader(
-                "Upload your document", type=['jpg', 'png', 'jpeg'], accept_multiple_files=False, key="doc_upload")
+            if media_type == "Upload":
+                document = st.file_uploader(
+                    "Upload your document", type=['jpg', 'png', 'jpeg'], accept_multiple_files=False, key="doc_upload")
 
-        if document != None:
-            image = cv2.imdecode(np.fromstring(
-                document.read(), np.uint8), cv2.IMREAD_UNCHANGED)
-            kyc.register_document(KycDocument(image))
+            if document != None:
+                image = cv2.imdecode(np.fromstring(
+                    document.read(), np.uint8), cv2.IMREAD_UNCHANGED)
+                kyc.register_document(KycDocument(image))
 
-    with st.expander("Legal document"):
-        col1, col2 = st.columns(2)
-        if kyc.document == None:
-            st.error("No legal document uploaded yet.")
-            return
+                if kyc.document.error != None:
+                    st.error(kyc.document.error)
+                    return
+
+        with st.expander("Legal document"):
+            col1, col2 = st.columns(2)
+            if kyc.document == None:
+                st.error("No legal document uploaded yet.")
+                return
 
         with col1:
             st.image(
@@ -143,38 +154,42 @@ def document_form():
         with col2:
             st.image(
                 kyc.document.detected_faces, caption=f"Processed image {kyc.document.detected_faces.shape}", use_column_width=True)
-
+    except Exception as e:
+        print("Could not show document images: " + str(e))
 
 def verification_form():
     if (kyc.selfie == None or kyc.document == None):
         return
 
-    with st.expander("Verification"):
-        col1, col2 = st.columns(2)
-        with col1:
-            st.image(
-                kyc.selfie.base_image, caption=f"Selfie", use_column_width=True)
+    try:
+        with st.expander("Verification"):
+            col1, col2 = st.columns(2)
+            with col1:
+                st.image(
+                    kyc.selfie.base_image, caption=f"Selfie", use_column_width=True)
 
-        with col2:
-            st.image(
-                kyc.document.base_image, caption=f"Document", use_column_width=True)
+            with col2:
+                st.image(
+                    kyc.document.base_image, caption=f"Document", use_column_width=True)
 
-        results = pd.DataFrame(verify_face(
-            kyc.selfie.base_image, kyc.document.base_image, models, similarity_metrics)).sort_values(by=['verified'], ascending=False)
-        st.data_editor(
-            results,
-            hide_index=True,
-            use_container_width=True,
-            column_config={
-                "base": st.column_config.ImageColumn("Base", help="Base image"),
-                "face": st.column_config.ImageColumn("Face", help="Detected face"),
-                "verified": st.column_config.CheckboxColumn("Verified", help="Indicates if the similarity is high enough to be a match", disabled=True),
-                "model": st.column_config.TextColumn("Model", help="Model used to detect and predict"),
-                "similarity_metric": st.column_config.TextColumn("Similarity metric", help="Model used to detect and predict"),
-                "distance": st.column_config.NumberColumn("Distance", help="Distance between the two faces"),
-                "threshold": st.column_config.NumberColumn("Threshold", help="Threshold used to determine if the two faces are the same"),
-            }
-        )
+            results = pd.DataFrame(verify_face(
+                kyc.selfie.base_image, kyc.document.base_image, models, similarity_metrics)).sort_values(by=['verified'], ascending=False)
+            st.data_editor(
+                results,
+                hide_index=True,
+                use_container_width=True,
+                column_config={
+                    "base": st.column_config.ImageColumn("Base", help="Base image"),
+                    "face": st.column_config.ImageColumn("Face", help="Detected face"),
+                    "verified": st.column_config.CheckboxColumn("Verified", help="Indicates if the similarity is high enough to be a match", disabled=True),
+                    "model": st.column_config.TextColumn("Model", help="Model used to detect and predict"),
+                    "similarity_metric": st.column_config.TextColumn("Similarity metric", help="Model used to detect and predict"),
+                    "distance": st.column_config.NumberColumn("Distance", help="Distance between the two faces"),
+                    "threshold": st.column_config.NumberColumn("Threshold", help="Threshold used to determine if the two faces are the same"),
+                }
+            )
+    except Exception as e:
+        print("Could not show verification images: " + str(e))
 
 
 def details_form():
