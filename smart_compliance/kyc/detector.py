@@ -21,7 +21,9 @@ def detect_faces(image):
                                       target_size=(224, 224),
                                       detector_backend=backends[4])
     except Exception as e:
-        print("Exception: ", e)
+        # TODO: this error seems to break the app completely. Fix it.
+        # RuntimeError: Event loop is closed
+        print("Could not detect faces.")
         return []
 
 
