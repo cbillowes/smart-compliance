@@ -19,8 +19,8 @@ models = [
 ]
 
 similarity_metrics = [
-    "cosine",
-    "euclidean",
+    # "cosine",
+    # "euclidean",
     "euclidean_l2"
 ]
 
