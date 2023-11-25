@@ -9,7 +9,7 @@ class KycPhoto:
         faces, image_with_rectangles = extract_faces(self.processed)
         self.detected_faces = image_with_rectangles
         self.base_image = faces[0]
-        self.face = faces[1]
+        self.face = faces[1] if len(faces) > 1 else None
 
 
 class Kyc:
