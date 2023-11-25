@@ -50,6 +50,9 @@ def extract_faces(image):
 
 
 def verify_face(base_image, image, models, distance_metrics, detector_backend="opencv"):
+    if base_image is None or image is None:
+        return []
+
     results = []
     for model in models:
         for distance_metric in distance_metrics:
