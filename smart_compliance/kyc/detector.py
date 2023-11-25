@@ -1,6 +1,7 @@
 from deepface import DeepFace
 import base64
 import cv2
+import numpy as np
 
 
 def detect_faces(image):
@@ -16,41 +17,36 @@ def detect_faces(image):
             'yunet',
             'fastmtcnn',
         ]
-        return DeepFace.extract_faces(img_path = image,
-            target_size = (224, 224),
-            detector_backend = backends[4]
-        )
+        return DeepFace.extract_faces(img_path=image,
+                                      target_size=(224, 224),
+                                      detector_backend=backends[4])
     except Exception as e:
         print("Exception: ", e)
         return []
-
-def with_rectangles(image):
-    faces = detect_faces(image)
-
-    for face in faces:
-        try:
-            facial_area = face["facial_area"]
-            x = facial_area["x"]
-            y = facial_area["y"]
-            w = facial_area["w"]
-            h = facial_area["h"]
-            cv2.rectangle(image, (x, y), (x + w, y + h), (255, 0, 0), 5)
-        except Exception as e:
-            print("Problem drawing face: " + str(e))
-
-    return image
 
 
 def extract_faces(image):
     faces = []
     for face in detect_faces(image):
         facial_area = face["facial_area"]
-        x = facial_area["x"]
-        y = facial_area["y"]
         w = facial_area["w"]
         h = facial_area["h"]
-        faces.append(image[y:y+h, x:x+w])
-    return faces
+        size = w * h
+        faces.append({
+            "face": facial_area,
+            "size": size,
+        })
+    backup = np.array(image).copy()
+    detected_faces = []
+    faces.sort(key=lambda face: face["size"], reverse=True)
+    for face in list(map(lambda face: face["face"], faces[:2])):
+        x = face["x"]
+        y = face["y"]
+        w = face["w"]
+        h = face["h"]
+        detected_faces.append(backup[y:y + h, x:x + w])
+        cv2.rectangle(image, (x, y), (x + w, y + h), (255, 0, 0), 5)
+    return detected_faces, image
 
 
 def verify_face(base_image, image, models, distance_metrics, detector_backend="opencv"):
@@ -58,11 +54,11 @@ def verify_face(base_image, image, models, distance_metrics, detector_backend="o
     for model in models:
         for distance_metric in distance_metrics:
             result = DeepFace.verify(img1_path=base_image,
-                                    img2_path=image,
-                                    model_name=model,
-                                    distance_metric=distance_metric,
-                                    detector_backend=detector_backend,
-                                    enforce_detection=False)
+                                     img2_path=image,
+                                     model_name=model,
+                                     distance_metric=distance_metric,
+                                     detector_backend=detector_backend,
+                                     enforce_detection=False)
             results.append(result)
 
     results = [{
@@ -75,4 +71,3 @@ def verify_face(base_image, image, models, distance_metrics, detector_backend="o
         "threshold": result['threshold'],
     } for result in results]
     return results
-

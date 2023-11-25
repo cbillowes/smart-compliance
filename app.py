@@ -15,7 +15,6 @@ st.session_state = {
 models = [
     "VGG-Face",
     "Facenet",
-    "OpenFace",
     "ArcFace",
 ]
 
@@ -61,8 +60,7 @@ def selfie_form():
         if selfie != None:
             image = cv2.imdecode(np.fromstring(
                 selfie.read(), np.uint8), cv2.IMREAD_UNCHANGED)
-            kyc.register_selfie(
-                KycPhoto(image))
+            kyc.register_selfie(KycPhoto(image))
 
     with st.expander("Selfie"):
         col1, col2 = st.columns(2)
@@ -83,26 +81,23 @@ def selfie_form():
         if kyc.selfie != None:
             models = st.session_state["models"]
             similarity_metrics = st.session_state["similarity_metrics"]
-            results = []
-            for i, face in enumerate(kyc.selfie.faces):
-                results = pd.DataFrame(verify_face(
-                    kyc.selfie.base_image, face, models, similarity_metrics))
+            results = pd.DataFrame(verify_face(
+                kyc.selfie.base_image, kyc.selfie.face, models, similarity_metrics))
 
-                st.data_editor(
-                    results,
-                    key=f"selfie_results_{i}",
-                    hide_index=True,
-                    use_container_width=True,
-                    column_config={
-                        "base": st.column_config.ImageColumn("Base", help="Base image"),
-                        "face": st.column_config.ImageColumn("Face", help="Detected face"),
-                        "verified": st.column_config.CheckboxColumn("Verified", help="Indicates if the similarity is high enough to be a match"),
-                        "model": st.column_config.TextColumn("Model", help="Model used to detect and predict"),
-                        "similarity_metric": st.column_config.TextColumn("Similarity metric", help="Model used to detect and predict"),
-                        "distance": st.column_config.NumberColumn("Distance", help="Distance between the two faces"),
-                        "threshold": st.column_config.NumberColumn("Threshold", help="Threshold used to determine if the two faces are the same"),
-                    }
-                )
+            st.data_editor(
+                results,
+                hide_index=True,
+                use_container_width=True,
+                column_config={
+                    "base": st.column_config.ImageColumn("Base", help="Base image"),
+                    "face": st.column_config.ImageColumn("Face", help="Detected face"),
+                    "verified": st.column_config.CheckboxColumn("Verified", help="Indicates if the similarity is high enough to be a match"),
+                    "model": st.column_config.TextColumn("Model", help="Model used to detect and predict"),
+                    "similarity_metric": st.column_config.TextColumn("Similarity metric", help="Model used to detect and predict"),
+                    "distance": st.column_config.NumberColumn("Distance", help="Distance between the two faces"),
+                    "threshold": st.column_config.NumberColumn("Threshold", help="Threshold used to determine if the two faces are the same"),
+                }
+            )
 
 
 def document_form():
@@ -155,24 +150,22 @@ def document_form():
         if kyc.document != None:
             models = st.session_state["models"]
             similarity_metrics = st.session_state["similarity_metrics"]
-            results = []
-            for i, face in enumerate(kyc.document.faces):
-                results = pd.DataFrame(verify_face(
-                    kyc.document.base_image, face, models, similarity_metrics)).sort_values(by=['verified'], ascending=False)
-                st.data_editor(
-                    results,
-                    hide_index=True,
-                    use_container_width=True,
-                    column_config={
-                        "base": st.column_config.ImageColumn("Base", help="Base image"),
-                        "face": st.column_config.ImageColumn("Face", help="Detected face"),
-                        "verified": st.column_config.CheckboxColumn("Verified", help="Indicates if the similarity is high enough to be a match"),
-                        "model": st.column_config.TextColumn("Model", help="Model used to detect and predict"),
-                        "similarity_metric": st.column_config.TextColumn("Similarity metric", help="Model used to detect and predict"),
-                        "distance": st.column_config.NumberColumn("Distance", help="Distance between the two faces"),
-                        "threshold": st.column_config.NumberColumn("Threshold", help="Threshold used to determine if the two faces are the same"),
-                    }
-                )
+            results = pd.DataFrame(verify_face(
+                kyc.document.base_image, kyc.document.face, models, similarity_metrics)).sort_values(by=['verified'], ascending=False)
+            st.data_editor(
+                results,
+                hide_index=True,
+                use_container_width=True,
+                column_config={
+                    "base": st.column_config.ImageColumn("Base", help="Base image"),
+                    "face": st.column_config.ImageColumn("Face", help="Detected face"),
+                    "verified": st.column_config.CheckboxColumn("Verified", help="Indicates if the similarity is high enough to be a match"),
+                    "model": st.column_config.TextColumn("Model", help="Model used to detect and predict"),
+                    "similarity_metric": st.column_config.TextColumn("Similarity metric", help="Model used to detect and predict"),
+                    "distance": st.column_config.NumberColumn("Distance", help="Distance between the two faces"),
+                    "threshold": st.column_config.NumberColumn("Threshold", help="Threshold used to determine if the two faces are the same"),
+                }
+            )
 
 
 def verification_form():
@@ -210,10 +203,14 @@ def verification_form():
 def details_form():
     with st.sidebar.expander("Step 5: Enter your details"):
         with st.form("compliance_form"):
-            first_name = st.text_input('First name')
-            last_name = st.text_input('Last name')
-            id_number = st.text_input('ID number / passport / NIC')
-            dob = st.date_input('Date of birth')
+            ocr_data = st.session_state.get('ocr_data', {})
+            first_name = st.text_input(
+                'First name', value=ocr_data.get('first_name', ''))
+            last_name = st.text_input(
+                'Last name', value=ocr_data.get('last_name', ''))
+            id_number = st.text_input(
+                'ID number / passport / NIC', value=ocr_data.get('id_number', ''))
+            dob = st.date_input('Date of birth', value=ocr_data.get('dob'))
             st.form_submit_button(
                 "Submit", use_container_width=True, type="primary")
 
