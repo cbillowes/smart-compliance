@@ -17,7 +17,7 @@
 - [ ] Adjust the UI to be more user friendly and not have all the options on the sidebar
 - [ ] [!!!!!!!!] Create an algorithm to "predict" the outcome (green tick, red cross, yellow question mark)
       ±If 60% of total number of verified results then it is verified
-- [ ] [!!!!!!!!] OCR for different types of documents
+- [ ] [!!!!!!!!] OCR for different types of documents: only cater for specific documents
 
 
 Have a strong point and weak point of the model for the demo.

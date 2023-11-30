@@ -8,7 +8,8 @@ class KycSelfie:
     def __init__(self, image) -> None:
         try:
             self.original, self.processed = process(image)
-            faces, image_with_rectangles = extract_faces_for_selfie(self.processed)
+            faces, image_with_rectangles = extract_faces_for_selfie(
+                self.processed)
             self.detected_faces = image_with_rectangles
             self.error = None
 
@@ -29,7 +30,8 @@ class KycDocument:
     def __init__(self, image) -> None:
         try:
             self.original, self.processed = process(image)
-            faces, image_with_rectangles = extract_faces_for_document(self.processed)
+            faces, image_with_rectangles = extract_faces_for_document(
+                self.processed)
             self.detected_faces = image_with_rectangles
             self.error = None
             if len(faces) == 0:
@@ -39,6 +41,7 @@ class KycDocument:
         except Exception as e:
             print("Could not process document: " + str(e))
             self.error = "The image is not valid. Please try a different image."
+
 
 class Kyc:
     def __init__(self) -> None:

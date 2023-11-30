@@ -90,3 +90,17 @@ def verify_face(base_image, image, models, distance_metrics, detector_backend="o
         "threshold": result['threshold'],
     } for result in results]
     return results
+
+
+def get_prediction(results, model_weights):
+    verified = []
+    score = 0
+    for result in results:
+        if result["verified"]:
+            score += sum([mw['weight'] for mw in model_weights if mw['model'] == result["model"]])
+            verified.append(result)
+
+    if score >= 50:
+        return "verified"
+
+    return "not_verified"

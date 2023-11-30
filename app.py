@@ -1,5 +1,5 @@
 from smart_compliance.kyc.core import KycSelfie, KycDocument, Kyc
-from smart_compliance.kyc.detector import verify_face
+from smart_compliance.kyc.detector import verify_face, get_prediction
 import streamlit as st
 import numpy as np
 import pandas as pd
@@ -16,6 +16,12 @@ models = [
     "VGG-Face",
     "Facenet",
     "ArcFace",
+]
+
+model_weights = [
+    { "model": "VGG-Face", "weight": 10 },
+    { "model": "Facenet", "weight": 40 },
+    { "model": "ArcFace", "weight": 50 },
 ]
 
 similarity_metrics = [
@@ -106,6 +112,7 @@ def selfie_form():
     except Exception as e:
         print("Could not show selfie images: " + str(e))
 
+
 def document_form():
     try:
         with st.sidebar.expander("Step 4: Upload your legal document"):
@@ -157,37 +164,45 @@ def document_form():
     except Exception as e:
         print("Could not show document images: " + str(e))
 
+
 def verification_form():
     if (kyc.selfie == None or kyc.document == None):
         return
 
     try:
-        with st.expander("Verification"):
-            col1, col2 = st.columns(2)
-            with col1:
-                st.image(
-                    kyc.selfie.base_image, caption=f"Selfie", use_column_width=True)
+        results = verify_face(
+            kyc.selfie.base_image, kyc.document.base_image, models, similarity_metrics)
 
-            with col2:
-                st.image(
-                    kyc.document.base_image, caption=f"Document", use_column_width=True)
+        predict = get_prediction(results, model_weights)
+        if predict == "verified":
+            st.write("## ✅ Verified")
+        elif predict == "not_verified":
+            st.write("## ❌ Not verified")
 
-            results = pd.DataFrame(verify_face(
-                kyc.selfie.base_image, kyc.document.base_image, models, similarity_metrics)).sort_values(by=['verified'], ascending=False)
-            st.data_editor(
-                results,
-                hide_index=True,
-                use_container_width=True,
-                column_config={
-                    "base": st.column_config.ImageColumn("Base", help="Base image"),
-                    "face": st.column_config.ImageColumn("Face", help="Detected face"),
-                    "verified": st.column_config.CheckboxColumn("Verified", help="Indicates if the similarity is high enough to be a match", disabled=True),
-                    "model": st.column_config.TextColumn("Model", help="Model used to detect and predict"),
-                    "similarity_metric": st.column_config.TextColumn("Similarity metric", help="Model used to detect and predict"),
-                    "distance": st.column_config.NumberColumn("Distance", help="Distance between the two faces"),
-                    "threshold": st.column_config.NumberColumn("Threshold", help="Threshold used to determine if the two faces are the same"),
-                }
-            )
+        col1, col2 = st.columns(2)
+        with col1:
+            st.image(
+                kyc.selfie.base_image, caption=f"Selfie", use_column_width=True)
+
+        with col2:
+            st.image(
+                kyc.document.base_image, caption=f"Document", use_column_width=True)
+
+        results = pd.DataFrame(results).sort_values(by=['verified'], ascending=False)
+        st.data_editor(
+            results,
+            hide_index=True,
+            use_container_width=True,
+            column_config={
+                "base": st.column_config.ImageColumn("Base", help="Base image"),
+                "face": st.column_config.ImageColumn("Face", help="Detected face"),
+                "verified": st.column_config.CheckboxColumn("Verified", help="Indicates if the similarity is high enough to be a match", disabled=True),
+                "model": st.column_config.TextColumn("Model", help="Model used to detect and predict"),
+                "similarity_metric": st.column_config.TextColumn("Similarity metric", help="Model used to detect and predict"),
+                "distance": st.column_config.NumberColumn("Distance", help="Distance between the two faces"),
+                "threshold": st.column_config.NumberColumn("Threshold", help="Threshold used to determine if the two faces are the same"),
+            }
+        )
     except Exception as e:
         print("Could not show verification images: " + str(e))
 
