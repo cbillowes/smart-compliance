@@ -19,9 +19,9 @@ models = [
 ]
 
 model_weights = [
-    { "model": "VGG-Face", "weight": 10 },
-    { "model": "Facenet", "weight": 40 },
-    { "model": "ArcFace", "weight": 50 },
+    {"model": "VGG-Face", "weight": 10},
+    {"model": "Facenet", "weight": 40},
+    {"model": "ArcFace", "weight": 50},
 ]
 
 similarity_metrics = [
@@ -32,19 +32,19 @@ similarity_metrics = [
 
 
 def models_form():
-    with st.sidebar.expander("Step 1: Choose your models"):
+    with st.sidebar.expander("Choose your models"):
         st.session_state["models"] = st.multiselect(
             "Trained models to detect and predict", options=models, default=models, key="models")
 
 
 def similarity_metrics_form():
-    with st.sidebar.expander("Step 2: Choose your similarity metrics"):
+    with st.sidebar.expander("Choose your similarity metrics"):
         st.session_state["similarity_metrics"] = st.multiselect(
             "Metrics used to determine similarities", options=similarity_metrics, default=similarity_metrics, key="similarity_metrics")
 
 
 def selfie_form():
-    with st.sidebar.expander("Step 3: Upload your selfie"):
+    with st.sidebar.expander("Upload your selfie"):
         st.write("Your face should be clearly visible. Remove masks, glasses and hats. Look straight at the camera. Have a neutral face matching your face on your legal document. Make sure the lighting is good. Avoid shadows and busy backgrounds.")
 
         media_type = st.selectbox(
@@ -115,7 +115,7 @@ def selfie_form():
 
 def document_form():
     try:
-        with st.sidebar.expander("Step 4: Upload your legal document"):
+        with st.sidebar.expander("Upload your legal document"):
 
             if kyc.selfie == None:
                 st.write("You need to upload the selfie first.")
@@ -179,6 +179,17 @@ def verification_form():
         elif predict == "not_verified":
             st.write("## ❌ Not verified")
 
+        extracted_text = kyc.document.extract_text({
+            "first_name": st.session_state["first_name"],
+            "last_name": st.session_state["last_name"],
+            "id_number": st.session_state["id_number"],
+            "dob": st.session_state["dob"],
+        })
+        st.write(f"First name: {extracted_text['first_name']}")
+        st.write(f"Last name: {extracted_text['last_name']}")
+        st.write(f"Identification number: {extracted_text['id_number']}")
+        # st.write(f"Date of birth: {extracted_text['dob']}")
+
         col1, col2 = st.columns(2)
         with col1:
             st.image(
@@ -188,7 +199,8 @@ def verification_form():
             st.image(
                 kyc.document.base_image, caption=f"Document", use_column_width=True)
 
-        results = pd.DataFrame(results).sort_values(by=['verified'], ascending=False)
+        results = pd.DataFrame(results).sort_values(
+            by=['verified'], ascending=False)
         st.data_editor(
             results,
             hide_index=True,
@@ -208,16 +220,12 @@ def verification_form():
 
 
 def details_form():
-    with st.sidebar.expander("Step 5: Enter your details"):
+    with st.sidebar.expander("Enter your details"):
         with st.form("compliance_form"):
-            ocr_data = st.session_state.get('ocr_data', {})
-            first_name = st.text_input(
-                'First name', value=ocr_data.get('first_name', ''))
-            last_name = st.text_input(
-                'Last name', value=ocr_data.get('last_name', ''))
-            id_number = st.text_input(
-                'ID number / passport / NIC', value=ocr_data.get('id_number', ''))
-            dob = st.date_input('Date of birth', value=ocr_data.get('dob'))
+            st.session_state["first_name"] = st.text_input('First name')
+            st.session_state["last_name"] = st.text_input('Last name')
+            st.session_state["id_number"] = st.text_input('Identification number')
+            st.session_state["dob"] = st.date_input('Date of birth')
             st.form_submit_button(
                 "Submit", use_container_width=True, type="primary")
 
@@ -234,10 +242,10 @@ def main():
 
     models_form()
     similarity_metrics_form()
+    details_form()
     selfie_form()
     document_form()
     verification_form()
-    details_form()
 
     st.sidebar.divider()
     st.sidebar.image("./hero.png", use_column_width=True,

@@ -1,12 +1,52 @@
 import cv2
 import pytesseract
 from PIL import Image
+import re
 
-# https://pyimagesearch.com/2021/12/01/ocr-passports-with-opencv-and-tesseract/
-def extract_characters(image):
-    image = cv2.resize(image, (0, 0), fx=10, fy=10)
-    grayscale = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
-    _, threshold = cv2.threshold(
-        grayscale, 0, 255, cv2.THRESH_BINARY + cv2.THRESH_OTSU)
-    text = pytesseract.image_to_string(Image.fromarray(threshold))
-    return text.replace('\n', ' ').replace('\t', ' ').replace('\r', ' ').strip()
+
+def preprocess_image(image):
+    """
+    Processes the image by resizing it in order to improve OCR results.
+    """
+    return cv2.resize(image, None, fx=1.5, fy=1.5, interpolation=cv2.INTER_LINEAR)
+
+
+def extract_words_from_text(text, word):
+    """
+    Extracts all words from the given text that match the given word.
+    """
+    return " ".join(re.findall(word, text))
+
+
+def extract_text(image, personal_details):
+    """
+    Extracts text from the given image using pytesseract.
+    """
+    pil_image = Image.fromarray(image)
+    config = '--psm 6'
+    text = pytesseract.image_to_string(pil_image, config=config).lower()
+
+    return {
+        "first_name": extract_words_from_text(text, personal_details["first_name"].lower()),
+        "last_name": extract_words_from_text(text, personal_details["last_name"].lower()),
+        "id_number": extract_words_from_text(text, personal_details["id_number"].lower()),
+        # "dob": extract_words_from_text(text, personal_details["dob"]),
+    }
+
+
+# def refine_extracted_text(text):
+#     dates = re.findall(r'\b\d{1,2}[/-]\d{1,2}[/-]\d{2,4}\b', text)
+
+#     name_match = re.search(r'Name: (.+)', text)
+#     id_match = re.search(r'ID: (\d+)', text)
+
+#     name = name_match.group(1) if name_match else ''
+#     id_number = id_match.group(1) if id_match else ''
+
+#     return {
+#         'raw_text': text,
+#         'extracted_dates': dates,
+#         'first_name': name.split()[0] if name else '',
+#         'last_name': ' '.join(name.split()[1:]) if name else '',
+#         'id_number': id_number
+#     }

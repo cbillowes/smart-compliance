@@ -7,18 +7,18 @@
 - [x] Base image in legal document must be the same as the image in the selfie
 - [x] Fix error handling with image face detection
 
-- [ ] Work with rotated document
+- [ ] [!!!!!!!!] Create an algorithm to "predict" the outcome (green tick, red cross, yellow question mark)
+      ±If 60% of total number of verified results then it is verified
+- [ ] [!!!!!!!!] OCR for different types of documents: only cater for specific documents
+- [ ] Adjust the UI to be more user friendly and not have all the options on the sidebar
 - [ ] [!!] Event loop is closed. App hangs and does not recover
 
 - [ ] Harlem shake verification results grid (why is it shaking?)
 - [ ] There seems to be an issue uploading different image types
 - [ ] Check the exception printed on streamlit server
-- [ ] Improve verification accuracy
-- [ ] Adjust the UI to be more user friendly and not have all the options on the sidebar
-- [ ] [!!!!!!!!] Create an algorithm to "predict" the outcome (green tick, red cross, yellow question mark)
-      ±If 60% of total number of verified results then it is verified
-- [ ] [!!!!!!!!] OCR for different types of documents: only cater for specific documents
 
+- [ ] Work with rotated document
+- [ ] Improve verification accuracy
 
 Have a strong point and weak point of the model for the demo.
 Majority vote for prediction.

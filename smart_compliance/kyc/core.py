@@ -2,6 +2,7 @@ import traceback
 import sys
 from smart_compliance.kyc.preparator import process
 from smart_compliance.kyc.detector import extract_faces_for_selfie, extract_faces_for_document
+from smart_compliance.kyc.extractor import extract_text
 
 
 class KycSelfie:
@@ -41,6 +42,9 @@ class KycDocument:
         except Exception as e:
             print("Could not process document: " + str(e))
             self.error = "The image is not valid. Please try a different image."
+
+    def extract_text(self, personal_details):
+        return extract_text(self.original, personal_details)
 
 
 class Kyc:
