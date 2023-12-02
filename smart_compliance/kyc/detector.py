@@ -68,7 +68,7 @@ def extract_faces_for_document(image):
 
 @st.cache_data
 def verify_face(base_image, image, models, distance_metrics, detector_backend="opencv"):
-    print(f"Verifying face from cached data function...{base_image}")
+    print(f"Verifying face from cached data function...")
     if base_image is None or image is None:
         return []
 

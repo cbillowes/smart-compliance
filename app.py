@@ -33,7 +33,7 @@ st.session_state["similarity_metrics"] = similarity_metrics
 
 
 def info_form():
-    with st.expander("📝 Information"):
+    with st.sidebar.expander("📝 Information"):
         st.write("This is a proof of concept for a fraud reduction strategy for financial institutions. It is not intended to be used in production yet.")
         st.write("The purpose of this project is to demonstrate how one can use facial recognition to verify the identity of a customer.")
         st.write("This project uses the following technologies:")
@@ -45,7 +45,7 @@ def info_form():
 
 
 def selfie_form():
-    with st.sidebar.expander("Upload your selfie"):
+    with st.expander("Upload your selfie"):
         st.write("Your face should be clearly visible. Remove masks, glasses and hats. Look straight at the camera. Have a neutral face matching your face on your legal document. Make sure the lighting is good. Avoid shadows and busy backgrounds.")
 
         media_type = st.selectbox(
@@ -70,9 +70,7 @@ def selfie_form():
             kyc.register_selfie(KycSelfie(image_array))
 
 
-def selfie_results():
-    try:
-        with st.expander("Selfie"):
+        try:
             col1, col2 = st.columns(2)
             if kyc.selfie == None:
                 st.error("No selfie uploaded yet.")
@@ -112,13 +110,13 @@ def selfie_results():
                         "threshold": st.column_config.NumberColumn("Threshold", help="Threshold used to determine if the two faces are the same"),
                     }
                 )
-    except Exception as e:
-        print("Could not show selfie images: " + str(e))
+        except Exception as e:
+            print("Could not show selfie images: " + str(e))
 
 
 def document_form():
     try:
-        with st.sidebar.expander("Upload your legal document"):
+        with st.expander("Upload your legal document"):
 
             if kyc.selfie == None:
                 st.write("You need to upload the selfie first.")
@@ -258,7 +256,6 @@ def main():
 
     details_form()
     selfie_form()
-    selfie_results()
     document_form()
     verification_form()
     info_form()
