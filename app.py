@@ -25,20 +25,22 @@ model_weights = [
 ]
 
 similarity_metrics = [
-    # "cosine",
-    # "euclidean",
+    "cosine",
+    "euclidean",
     "euclidean_l2"
 ]
 
+st.session_state["models"] = models
+st.session_state["similarity_metrics"] = similarity_metrics
 
 def models_form():
-    with st.sidebar.expander("Choose your models"):
+    with st.expander("Choose your models"):
         st.session_state["models"] = st.multiselect(
             "Trained models to detect and predict", options=models, default=models, key="models")
 
 
 def similarity_metrics_form():
-    with st.sidebar.expander("Choose your similarity metrics"):
+    with st.expander("Choose your similarity metrics"):
         st.session_state["similarity_metrics"] = st.multiselect(
             "Metrics used to determine similarities", options=similarity_metrics, default=similarity_metrics, key="similarity_metrics")
 
@@ -173,11 +175,11 @@ def verification_form():
         results = verify_face(
             kyc.selfie.base_image, kyc.document.base_image, models, similarity_metrics)
 
-        predict = get_prediction(results, model_weights)
+        predict, percentage = get_prediction(results, model_weights)
         if predict == "verified":
-            st.write("## ✅ Verified")
+            st.write(f"## ✅ Verified: {percentage}%")
         elif predict == "not_verified":
-            st.write("## ❌ Not verified")
+            st.write(f"## ❌ Not verified {percentage}%")
 
         extracted_text = kyc.document.extract_text({
             "first_name": st.session_state["first_name"],
@@ -240,12 +242,12 @@ def main():
 
     st.sidebar.title("Compliance documents")
 
-    models_form()
-    similarity_metrics_form()
     details_form()
     selfie_form()
     document_form()
     verification_form()
+    models_form()
+    similarity_metrics_form()
 
     st.sidebar.divider()
     st.sidebar.image("./hero.png", use_column_width=True,

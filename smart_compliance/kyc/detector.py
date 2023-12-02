@@ -97,10 +97,13 @@ def get_prediction(results, model_weights):
     score = 0
     for result in results:
         if result["verified"]:
-            score += sum([mw['weight'] for mw in model_weights if mw['model'] == result["model"]])
+            score += sum([mw['weight'] /
+                         3 for mw in model_weights if mw['model'] == result["model"]])
             verified.append(result)
 
+    # score = score * 100 / sum([mw['weight'] for mw in model_weights])
+    score_formatted = "{:.2f}".format(score)
     if score >= 50:
-        return "verified"
+        return "verified", score_formatted
 
-    return "not_verified"
+    return "not_verified", score_formatted
