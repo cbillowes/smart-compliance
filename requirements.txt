@@ -6,3 +6,4 @@ openface
 pytesseract
 Pillow
 tensorflow
+imageio

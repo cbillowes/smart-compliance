@@ -1,9 +1,9 @@
 from smart_compliance.kyc.core import KycSelfie, KycDocument, Kyc
 from smart_compliance.kyc.detector import verify_face, get_prediction
+import imageio.v3 as iio
 import streamlit as st
 import numpy as np
 import pandas as pd
-import cv2
 
 kyc = Kyc()
 
@@ -64,9 +64,9 @@ def selfie_form():
                 "Upload your photo", type=['jpg', 'png', 'jpeg'], accept_multiple_files=False, key="selfie_upload")
 
         if selfie != None:
-            image = cv2.imdecode(np.fromstring(
-                selfie.read(), np.uint8), cv2.IMREAD_UNCHANGED)
-            kyc.register_selfie(KycSelfie(image))
+            image = iio.imread(selfie)
+            image_array = np.array(image)
+            kyc.register_selfie(KycSelfie(image_array))
 
     try:
         with st.expander("Selfie"):
@@ -140,9 +140,9 @@ def document_form():
                     "Upload your document", type=['jpg', 'png', 'jpeg'], accept_multiple_files=False, key="doc_upload")
 
             if document != None:
-                image = cv2.imdecode(np.fromstring(
-                    document.read(), np.uint8), cv2.IMREAD_UNCHANGED)
-                kyc.register_document(KycDocument(image))
+                image = iio.imread(document)
+                image_array = np.array(image)
+                kyc.register_document(KycDocument(image_array))
 
                 if kyc.document.error != None:
                     st.error(kyc.document.error)
