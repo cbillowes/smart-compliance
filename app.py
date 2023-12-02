@@ -180,21 +180,6 @@ def verification_form():
         elif predict == "not_verified":
             st.write(f"## ❌ Not verified")
 
-        extracted_text = kyc.document.extract_text({
-            "first_name": st.session_state["first_name"],
-            "last_name": st.session_state["last_name"],
-            "id_number": st.session_state["id_number"],
-            "dob": st.session_state["dob"],
-        })
-
-        with st.expander("Extracted text"):
-            st.write(extracted_text['raw_text'])
-
-        st.write(f"First name: {extracted_text['first_name']}")
-        st.write(f"Last name: {extracted_text['last_name']}")
-        st.write(f"Identification number: {extracted_text['id_number']}")
-        st.write(f"Date of birth: {extracted_text['dob']}")
-
         col1, col2 = st.columns(2)
         with col1:
             st.image(
@@ -220,6 +205,22 @@ def verification_form():
                 "threshold": st.column_config.NumberColumn("Threshold", help="Threshold used to determine if the two faces are the same"),
             }
         )
+
+        extracted_text = kyc.document.extract_text({
+            "first_name": st.session_state["first_name"],
+            "last_name": st.session_state["last_name"],
+            "id_number": st.session_state["id_number"],
+            "dob": st.session_state["dob"],
+        })
+
+        with st.expander("Extracted text"):
+            st.write(extracted_text['raw_text'])
+
+        st.write(f"First name: {extracted_text['first_name']}")
+        st.write(f"Last name: {extracted_text['last_name']}")
+        st.write(f"Identification number: {extracted_text['id_number']}")
+        st.write(f"Date of birth: {extracted_text['dob']}")
+
     except Exception as e:
         print("Could not show verification images: " + str(e))
 
@@ -234,7 +235,8 @@ def details_form():
                 'Last name', key="last_name")
             st.session_state["id_number"] = st.text_input(
                 'Identification number', key="id_number")
-            st.session_state["dob"] = st.text_input('Date of birth (as in document)', key="dob")
+            st.session_state["dob"] = st.text_input(
+                'Date of birth (as in document)', key="dob")
             st.form_submit_button(
                 "Submit", use_container_width=True, type="primary")
 
