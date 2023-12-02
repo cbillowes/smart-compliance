@@ -33,16 +33,18 @@ similarity_metrics = [
 st.session_state["models"] = models
 st.session_state["similarity_metrics"] = similarity_metrics
 
-def models_form():
-    with st.expander("Choose your models"):
-        st.session_state["models"] = st.multiselect(
-            "Trained models to detect and predict", options=models, default=models, key="models")
 
+def info_form():
+    with st.expander("📝 Information"):
+        st.write("This is a proof of concept for a fraud reduction strategy for financial institutions. It is not intended to be used in production yet.")
+        st.write("The purpose of this project is to demonstrate how one can use facial recognition to verify the identity of a customer.")
+        st.write("This project uses the following technologies:")
+        st.write("- Python")
+        st.write("- Streamlit")
+        st.write("- OpenCV")
+        st.write("- DeepFace")
+        st.write("- Pytesseract")
 
-def similarity_metrics_form():
-    with st.expander("Choose your similarity metrics"):
-        st.session_state["similarity_metrics"] = st.multiselect(
-            "Metrics used to determine similarities", options=similarity_metrics, default=similarity_metrics, key="similarity_metrics")
 
 
 def selfie_form():
@@ -226,7 +228,8 @@ def details_form():
         with st.form("compliance_form"):
             st.session_state["first_name"] = st.text_input('First name')
             st.session_state["last_name"] = st.text_input('Last name')
-            st.session_state["id_number"] = st.text_input('Identification number')
+            st.session_state["id_number"] = st.text_input(
+                'Identification number')
             st.session_state["dob"] = st.date_input('Date of birth')
             st.form_submit_button(
                 "Submit", use_container_width=True, type="primary")
@@ -246,8 +249,7 @@ def main():
     selfie_form()
     document_form()
     verification_form()
-    models_form()
-    similarity_metrics_form()
+    info_form()
 
     st.sidebar.divider()
     st.sidebar.image("./hero.png", use_column_width=True,
