@@ -33,21 +33,3 @@ def extract_text(image, personal_details):
         "id_number": extract_words_from_text(text, personal_details["id_number"].lower()),
         "dob": extract_words_from_text(text, personal_details["dob"].lower()),
     }
-
-
-# def refine_extracted_text(text):
-#     dates = re.findall(r'\b\d{1,2}[/-]\d{1,2}[/-]\d{2,4}\b', text)
-
-#     name_match = re.search(r'Name: (.+)', text)
-#     id_match = re.search(r'ID: (\d+)', text)
-
-#     name = name_match.group(1) if name_match else ''
-#     id_number = id_match.group(1) if id_match else ''
-
-#     return {
-#         'raw_text': text,
-#         'extracted_dates': dates,
-#         'first_name': name.split()[0] if name else '',
-#         'last_name': ' '.join(name.split()[1:]) if name else '',
-#         'id_number': id_number
-#     }

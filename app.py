@@ -262,5 +262,3 @@ def main():
 
 if __name__ == "__main__":
     main()
-
-# https://image-coordinates.streamlit.app/
