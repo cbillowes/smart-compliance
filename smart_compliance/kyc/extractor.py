@@ -27,10 +27,11 @@ def extract_text(image, personal_details):
     text = pytesseract.image_to_string(pil_image, config=config).lower()
 
     return {
+        "raw_text": text,
         "first_name": extract_words_from_text(text, personal_details["first_name"].lower()),
         "last_name": extract_words_from_text(text, personal_details["last_name"].lower()),
         "id_number": extract_words_from_text(text, personal_details["id_number"].lower()),
-        # "dob": extract_words_from_text(text, personal_details["dob"]),
+        "dob": extract_words_from_text(text, personal_details["dob"].lower()),
     }
 
 

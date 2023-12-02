@@ -25,8 +25,6 @@ model_weights = [
 ]
 
 similarity_metrics = [
-    "cosine",
-    "euclidean",
     "euclidean_l2"
 ]
 
@@ -44,7 +42,6 @@ def info_form():
         st.write("- OpenCV")
         st.write("- DeepFace")
         st.write("- Pytesseract")
-
 
 
 def selfie_form():
@@ -177,11 +174,11 @@ def verification_form():
         results = verify_face(
             kyc.selfie.base_image, kyc.document.base_image, models, similarity_metrics)
 
-        predict, percentage = get_prediction(results, model_weights)
+        predict = get_prediction(results, model_weights)
         if predict == "verified":
-            st.write(f"## ✅ Verified: {percentage}%")
+            st.write(f"## ✅ Verified")
         elif predict == "not_verified":
-            st.write(f"## ❌ Not verified {percentage}%")
+            st.write(f"## ❌ Not verified")
 
         extracted_text = kyc.document.extract_text({
             "first_name": st.session_state["first_name"],
@@ -189,10 +186,14 @@ def verification_form():
             "id_number": st.session_state["id_number"],
             "dob": st.session_state["dob"],
         })
+
+        with st.expander("Extracted text"):
+            st.write(extracted_text['raw_text'])
+
         st.write(f"First name: {extracted_text['first_name']}")
         st.write(f"Last name: {extracted_text['last_name']}")
         st.write(f"Identification number: {extracted_text['id_number']}")
-        # st.write(f"Date of birth: {extracted_text['dob']}")
+        st.write(f"Date of birth: {extracted_text['dob']}")
 
         col1, col2 = st.columns(2)
         with col1:
@@ -225,12 +226,15 @@ def verification_form():
 
 def details_form():
     with st.sidebar.expander("Enter your details"):
+        st.write("Your details will be compared to your legal document.")
         with st.form("compliance_form"):
-            st.session_state["first_name"] = st.text_input('First name')
-            st.session_state["last_name"] = st.text_input('Last name')
+            st.session_state["first_name"] = st.text_input(
+                'First name', key="first_name")
+            st.session_state["last_name"] = st.text_input(
+                'Last name', key="last_name")
             st.session_state["id_number"] = st.text_input(
-                'Identification number')
-            st.session_state["dob"] = st.date_input('Date of birth')
+                'Identification number', key="id_number")
+            st.session_state["dob"] = st.text_input('Date of birth (as in document)', key="dob")
             st.form_submit_button(
                 "Submit", use_container_width=True, type="primary")
 
