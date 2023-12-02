@@ -219,10 +219,10 @@ def verification_form():
         with st.expander("Extracted text"):
             st.write(extracted_text['raw_text'])
 
-        st.write(f"First name: {extracted_text['first_name']}")
-        st.write(f"Last name: {extracted_text['last_name']}")
-        st.write(f"Identification number: {extracted_text['id_number']}")
-        st.write(f"Date of birth: {extracted_text['dob']}")
+        st.write("First name: ", "✅" if extracted_text['first_name'].strip() != "" else "❌")
+        st.write("Last name: ", "✅" if extracted_text['last_name'].strip() != "" else "❌")
+        st.write("Identification number: ", "✅" if extracted_text['id_number'].strip() != "" else "❌")
+        st.write("Date of birth: ", "✅" if extracted_text['dob'].strip() != "" else "❌")
 
     except Exception as e:
         print("Could not show verification images: " + str(e))
