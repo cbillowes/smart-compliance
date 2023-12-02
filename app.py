@@ -253,6 +253,8 @@ def main():
         "A fraud reduction strategy for financial institutions done in a few easy steps.")
 
     st.sidebar.title("Compliance documents")
+    st.sidebar.write("Data confidentiality: your data is not stored in any database. It is stored in memory and cleared when the application is rebooted or at garbage collection intervals.")
+    st.sidebar.write("A GDPR-friendly web application. 👾")
 
     details_form()
     selfie_form()
