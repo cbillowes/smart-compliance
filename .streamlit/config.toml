@@ -1,3 +1,3 @@
 [browser]
 gatherUsageStats = false
-level = "debug"
+level = "info"
