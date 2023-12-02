@@ -69,6 +69,8 @@ def selfie_form():
             image_array = np.array(image)
             kyc.register_selfie(KycSelfie(image_array))
 
+
+def selfie_results():
     try:
         with st.expander("Selfie"):
             col1, col2 = st.columns(2)
@@ -171,6 +173,7 @@ def verification_form():
         return
 
     try:
+        print("Verifying faces...")
         results = verify_face(
             kyc.selfie.base_image, kyc.document.base_image, models, similarity_metrics)
 
@@ -206,12 +209,14 @@ def verification_form():
             }
         )
 
+        print("Extracting text...")
         extracted_text = kyc.document.extract_text({
             "first_name": st.session_state["first_name"],
             "last_name": st.session_state["last_name"],
             "id_number": st.session_state["id_number"],
             "dob": st.session_state["dob"],
         })
+        print("Extracted text...")
 
         with st.expander("Extracted text"):
             st.write(extracted_text['raw_text'])
@@ -253,6 +258,7 @@ def main():
 
     details_form()
     selfie_form()
+    selfie_results()
     document_form()
     verification_form()
     info_form()
@@ -263,4 +269,5 @@ def main():
 
 
 if __name__ == "__main__":
+    print("Booting application...")
     main()

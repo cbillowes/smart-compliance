@@ -1,3 +1,4 @@
+import streamlit as st
 from deepface import DeepFace
 import base64
 import cv2
@@ -65,7 +66,9 @@ def extract_faces_for_document(image):
     return [face], image
 
 
+@st.cache_data
 def verify_face(base_image, image, models, distance_metrics, detector_backend="opencv"):
+    print(f"Verifying face from cached data function...{base_image}")
     if base_image is None or image is None:
         return []
 
@@ -92,12 +95,15 @@ def verify_face(base_image, image, models, distance_metrics, detector_backend="o
     return results
 
 
+@st.cache_data
 def get_prediction(results, model_weights):
+    print("Getting prediction from cached data function...")
     verified = []
     score = 0
     for result in results:
         if result["verified"]:
-            score += sum([mw['weight'] for mw in model_weights if mw['model'] == result["model"]])
+            score += sum([mw['weight']
+                         for mw in model_weights if mw['model'] == result["model"]])
             verified.append(result)
 
     if score >= 50:
