@@ -1,10 +1,10 @@
+streamlit
 numpy
 deepface
 opencv-python
 python-multipart
 openface
 pytesseract
-tesseract
 Pillow
 tensorflow
 imageio
