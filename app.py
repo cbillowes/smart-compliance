@@ -99,7 +99,6 @@ def selfie_form():
                 st.data_editor(
                     results,
                     hide_index=True,
-                    use_container_width=True,
                     column_config={
                         "base": st.column_config.ImageColumn("Base", help="Base image"),
                         "face": st.column_config.ImageColumn("Face", help="Detected face"),
@@ -195,7 +194,6 @@ def verification_form():
         st.data_editor(
             results,
             hide_index=True,
-            use_container_width=True,
             column_config={
                 "base": st.column_config.ImageColumn("Base", help="Base image"),
                 "face": st.column_config.ImageColumn("Face", help="Detected face"),
